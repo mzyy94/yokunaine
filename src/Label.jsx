@@ -2,15 +2,13 @@ import {Component} from "react";
 import {Store} from "./Store";
 
 class Label extends Component {
-    state={
-        liked: false,
-        disliked: false,
+    state = {
         count: 0
     }
 
     listener = () => {
-        const {liked, disliked, count} = Store.getState();
-        this.setState({liked: liked, disliked: disliked, count: count})
+        const {count} = Store.getState();
+        this.setState({count: count})
     }
 
     componentWillMount() {

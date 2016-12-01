@@ -2,15 +2,14 @@ import {Component} from "react";
 import {Store, SET_DISLIKE, UNSET_DISLIKE} from "./Store";
 
 class Button extends Component {
-    state={
+    state = {
         liked: false,
-        disliked: false,
-        count: 0
+        disliked: false
     }
 
     listener = () => {
-        const {liked, disliked, count} = Store.getState();
-        this.setState({liked: liked, disliked: disliked, count: count})
+        const {liked, disliked} = Store.getState();
+        this.setState({liked: liked, disliked: disliked})
     }
 
     componentWillMount() {
@@ -18,10 +17,10 @@ class Button extends Component {
     }
 
     toggleStatus = () => {
-        if (this.state.liked) {
+        const {liked, disliked} = this.state;
+        if (liked) {
             return;
         }
-        const {count, disliked} = this.state;
         if (disliked) {
             // TODO: HTTP request to server with DELETE method
             Store.dispatch({type: UNSET_DISLIKE});
