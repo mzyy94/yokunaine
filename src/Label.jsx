@@ -1,5 +1,5 @@
-import {Component} from "react";
-import {Store} from "./Store";
+import {Component} from "react"
+import {Store} from "./Store"
 
 class Label extends Component {
     state = {
@@ -7,16 +7,16 @@ class Label extends Component {
     }
 
     listener = () => {
-        const {count} = Store.getState();
+        const {count} = Store.getState()
         this.setState({count: count})
     }
 
     componentWillMount() {
-        Store.subscribe(this.listener);
+        Store.subscribe(this.listener)
     }
 
     render() {
-        const {count} = this.state;
+        const {count} = this.state
         return (
             <div>
                 <div className="itemsShowHeaderStock_count">
@@ -25,8 +25,8 @@ class Label extends Component {
                 </div>
                 <div className="itemsShowHeaderStock_countText">よくないね</div>
             </div>
-        );
+        )
     }
 }
 
-export default Label;
+export default Label

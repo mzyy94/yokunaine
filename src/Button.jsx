@@ -1,5 +1,5 @@
-import {Component} from "react";
-import {Store, SET_DISLIKE, UNSET_DISLIKE} from "./Store";
+import {Component} from "react"
+import {Store, SET_DISLIKE, UNSET_DISLIKE} from "./Store"
 
 class Button extends Component {
     state = {
@@ -8,31 +8,31 @@ class Button extends Component {
     }
 
     listener = () => {
-        const {liked, disliked} = Store.getState();
+        const {liked, disliked} = Store.getState()
         this.setState({liked: liked, disliked: disliked})
     }
 
     componentWillMount() {
-        Store.subscribe(this.listener);
+        Store.subscribe(this.listener)
     }
 
     toggleStatus = () => {
-        const {liked, disliked} = this.state;
+        const {liked, disliked} = this.state
         if (liked) {
-            return;
+            return
         }
         if (disliked) {
             // TODO: HTTP request to server with DELETE method
-            Store.dispatch({type: UNSET_DISLIKE});
+            Store.dispatch({type: UNSET_DISLIKE})
         } else {
             // TODO: HTTP request to server with POST method
-            Store.dispatch({type: SET_DISLIKE});
+            Store.dispatch({type: SET_DISLIKE})
         }
     }
 
 
     render() {
-        const {liked, disliked} = this.state;
+        const {liked, disliked} = this.state
         return (
             <div className="LikeButton DislikeButton">
                 <button className={`p-button ${liked ? "disabled" : ""} ${disliked ? "liked" : ""}`} onClick={this.toggleStatus}>
@@ -40,8 +40,8 @@ class Button extends Component {
                     <span>よくないね</span>
                 </button>
             </div>
-        );
+        )
     }
 }
 
-export default Button;
+export default Button
