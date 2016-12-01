@@ -2,9 +2,23 @@ import React from "react"
 import ReactDOM from "react-dom"
 import Button from "./Button"
 import Label from "./Label"
-import {Store, INITIAL_STATE} from "./Store"
+import {Store, INITIAL_STATE, LIKED_STATE} from "./Store"
 window.React = React
 
+// Like button
+const likeButton = document.querySelector(".LikeButton > button")
+likeButton.addEventListener("click", (eve) => {
+    Store.dispatch({type: LIKED_STATE, data: !likeButton.classList.contains("liked")})
+})
+Store.dispatch({type: LIKED_STATE, data: likeButton.classList.contains("liked")})
+Store.subscribe(() => {
+    const {disliked} = Store.getState()
+    if (disliked) {
+        likeButton.classList.add("disabled")
+    } else {
+        likeButton.classList.remove("disabled")
+    }
+})
 
 // Button
 const buttonWrapper = document.createElement("div")
