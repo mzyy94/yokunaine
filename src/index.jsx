@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Button from "./Button";
 import Label from "./Label";
+import {Store, INITIAL_STATE} from "./Store";
 window.React = React;
 
 
@@ -13,7 +14,7 @@ buttonWrapper.id = "dislike-button";
 userList.parentNode.insertBefore(buttonWrapper, userList);
 
 ReactDOM.render(
-  <Button disliked={true} />,
+  <Button />,
   document.getElementById("dislike-button")
 );
 
@@ -26,6 +27,12 @@ labelWrapper.id = "dislike-label";
 statusList.insertBefore(labelWrapper, statusList.children[1])
 
 ReactDOM.render(
-  <Label count={100} />,
+  <Label />,
   document.getElementById("dislike-label")
 );
+
+//fetch(`https://yokunaine.com/item/${id}`)
+// Sample values
+Promise.resolve({disliked: Math.random() < 0.5, count: (Math.random() * 100) | 0})
+.then(status => Store.dispatch({type: INITIAL_STATE, data: status}))
+.catch(console.error)

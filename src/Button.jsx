@@ -23,8 +23,10 @@ class Button extends Component {
         }
         const {count, disliked} = this.state;
         if (disliked) {
+            // TODO: HTTP request to server with DELETE method
             Store.dispatch({type: UNSET_DISLIKE});
         } else {
+            // TODO: HTTP request to server with POST method
             Store.dispatch({type: SET_DISLIKE});
         }
     }
