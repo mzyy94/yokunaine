@@ -14,8 +14,8 @@ buttonWrapper.id = "dislike-button";
 userList.parentNode.insertBefore(buttonWrapper, userList);
 
 ReactDOM.render(
-  <Button />,
-  document.getElementById("dislike-button")
+    <Button />,
+    document.getElementById("dislike-button")
 );
 
 
@@ -27,8 +27,8 @@ labelWrapper.id = "dislike-label";
 statusList.insertBefore(labelWrapper, statusList.children[1])
 
 ReactDOM.render(
-  <Label />,
-  document.getElementById("dislike-label")
+    <Label />,
+    document.getElementById("dislike-label")
 );
 
 //fetch(`https://yokunaine.com/item/${id}`)
