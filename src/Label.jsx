@@ -1,4 +1,5 @@
 import {Component} from "react";
+import {Store} from "./Store";
 
 class Label extends Component {
     state={
@@ -7,8 +8,13 @@ class Label extends Component {
         count: 0
     }
 
+    listener = () => {
+        const {liked, disliked, count} = Store.getState();
+        this.setState({liked: liked, disliked: disliked, count: count})
+    }
+
     componentWillMount() {
-        this.setState({liked: !!this.props.liked, disliked: !!this.props.disliked, count: this.props.count || 0})
+        Store.subscribe(this.listener);
     }
 
     render() {

@@ -1,4 +1,5 @@
 import {Component} from "react";
+import {Store, SET_DISLIKE, UNSET_DISLIKE} from "./Store";
 
 class Button extends Component {
     state={
@@ -7,8 +8,13 @@ class Button extends Component {
         count: 0
     }
 
+    listener = () => {
+        const {liked, disliked, count} = Store.getState();
+        this.setState({liked: liked, disliked: disliked, count: count})
+    }
+
     componentWillMount() {
-        this.setState({liked: !!this.props.liked, disliked: !!this.props.disliked})
+        Store.subscribe(this.listener);
     }
 
     toggleStatus = () => {
@@ -17,9 +23,9 @@ class Button extends Component {
         }
         const {count, disliked} = this.state;
         if (disliked) {
-            this.setState({count: count - 1, disliked: !disliked})
+            Store.dispatch({type: UNSET_DISLIKE});
         } else {
-            this.setState({count: count + 1, disliked: !disliked})
+            Store.dispatch({type: SET_DISLIKE});
         }
     }
 
