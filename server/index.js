@@ -85,11 +85,13 @@ router
     await next()
 })
 
-// Authentication
-const checkAuth = async (ctx, next) => {
-    // Token should be "Authorization: Bearer <UUID>"
+// Dislike API
+router
+.use("/:username/items/:id", async (ctx, next) => {
+    // Authentication
     const auth = ctx.header.authorization
     ctx.assert(auth, 401)
+    // Token should be "Authorization: Bearer <UUID>"
     const token = auth.replace(/^Bearer /, "")
     // Authentication (token to user)
     await knex.first("id").where("token", token).from("users")
@@ -98,11 +100,8 @@ const checkAuth = async (ctx, next) => {
         ctx.user = user.id
     })
     await next()
-}
-
-// Dislike API
-router
-.get("/:username/items/:id", checkAuth, async (ctx, next) => {
+})
+.get("/:username/items/:id", async (ctx, next) => {
     // Get disliked status and dislike count from DB
     await knex.select("by_whom").where({id: ctx.params.id, state: true}).from("item_dislike")
     .then(users => {
@@ -112,7 +111,7 @@ router
         }
     })
 })
-.post("/:username/items/:id", checkAuth, async (ctx, next) => {
+.post("/:username/items/:id", async (ctx, next) => {
     // Set disliked status and get new dislike count
     const {id, username} = ctx.params
     await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
@@ -144,7 +143,7 @@ router
         ctx.body = {complete: true}
     })
 })
-.delete("/:username/items/:id", checkAuth, async (ctx, next) => {
+.delete("/:username/items/:id", async (ctx, next) => {
     // Unset disliked status and get new dislike count
     const {id, username} = ctx.params
     await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
