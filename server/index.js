@@ -75,7 +75,7 @@ router
         } else {
             return Promise.all([
                 token,
-                knex("users").where({id}).update({revoked: false, token})
+                knex("users").where({id}).update({revoked: false, token, updated_at: knex.fn.now()})
             ])
         }
     })
@@ -94,7 +94,7 @@ router
     .then(user => {
         ctx.assert(user, 404)
         ctx.assert(!user.revoked, 400)
-        return knex("users").where({id: user.id}).update({revoked: true})
+        return knex("users").where({id: user.id}).update({revoked: true, updated_at: knex.fn.now()})
     })
     .then(() => {
         ctx.body = {complete: true}
@@ -132,7 +132,7 @@ router
         if (disliked === undefined) {
             return knex("item_dislike").insert({id, username, by_whom: ctx.user, state: true})
         } else if (!disliked.state) {
-            return knex("item_dislike").where({id, by_whom: ctx.user}).update({state: true})
+            return knex("item_dislike").where({id, by_whom: ctx.user}).update({state: true, updated_at: knex.fn.now()})
         } else {
             ctx.throw(405)
         }
@@ -146,7 +146,7 @@ router
     const {id, username} = ctx.params
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
-    .then(() => knex("item_dislike").where({id, by_whom: ctx.user}).update({state: false}))
+    .then(() => knex("item_dislike").where({id, by_whom: ctx.user}).update({state: false, updated_at: knex.fn.now()}))
     .then(() => {
         ctx.body = {complete: true}
     })
