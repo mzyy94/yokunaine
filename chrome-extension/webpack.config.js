@@ -1,11 +1,12 @@
+const CopyWebpackPlugin = require("copy-webpack-plugin")
 module.exports = {
   context: __dirname,
   entry: {
-    jsx: "./src/index.jsx"
+    "index": "./src/index.jsx"
   },
   output: {
     path: __dirname + "/build",
-    filename: "index.js"
+    filename: "[name].js"
   },
   module: {
     loaders: [
@@ -19,5 +20,12 @@ module.exports = {
   },
   resolve: {
     extensions: ["", ".js", ".jsx"]
-  }
+  },
+  plugins: [
+    new CopyWebpackPlugin([
+      {from: "./options.html"},
+      {from: "./options.js"},
+      {from: "./manifest.json"},
+    ])
+  ]
 };
