@@ -151,6 +151,14 @@ router
         ctx.body = {complete: true}
     })
 })
+.get("/statistics/dislike", async (ctx, next) => {
+    await knex("item_dislike").count("*").where({state: true})
+    .then(([result]) => {
+        for (const count in result) {
+            return ctx.body = {total: result[count]}
+        }
+    })
+})
 
 // Run API Server
 app
