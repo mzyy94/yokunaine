@@ -16,8 +16,7 @@ const {client_id, client_secret, NODE_ENV} = process.env
 const knex = Knex(require("./knexfile.js")[NODE_ENV || "development"])
 const endpoint = "https://qiita.com/api/v2"
 
-
-
+// routing
 router
 .get("/auth", async (ctx, next) => {
     // Authentication request
@@ -106,7 +105,6 @@ router
     ctx.assert(auth, 401)
     // Token should be "Authorization: Bearer <UUID>"
     const token = auth.replace(/^Bearer /, "")
-    // Authentication (token to user)
     await knex("users").first("id").where({token, revoked: false})
     .then(user => {
         ctx.assert(user, 403)
@@ -125,7 +123,7 @@ router
     })
 })
 .post("/:username/items/:id", async (ctx, next) => {
-    // Set disliked status and get new dislike count
+    // Set disliked status
     const {id, username} = ctx.params
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => {
@@ -142,7 +140,7 @@ router
     })
 })
 .delete("/:username/items/:id", async (ctx, next) => {
-    // Unset disliked status and get new dislike count
+    // Unset disliked status
     const {id, username} = ctx.params
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
@@ -170,6 +168,7 @@ app
     .then(() => {})
 })
 .use(async (ctx, next) => {
+    // Set cors headers
     ctx.set("Access-Control-Allow-Origin", "*")
     ctx.set("Access-Control-Allow-Headers", "Authorization")
     ctx.set("Access-Control-Allow-Methods", "GET, PUT, DELETE")
