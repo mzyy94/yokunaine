@@ -115,7 +115,7 @@ router
     await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
     .then(disliked => {
         if (disliked === undefined) {
-            return knex.transaction((trx) => knex("item_dislike")
+            return knex.transaction(trx => knex("item_dislike")
             .transacting(trx)
             .insert({id, username, by_whom: ctx.user, state: true})
             .then(trx.commit)
@@ -123,8 +123,8 @@ router
                 trx.rollback()
                 throw e
             }))
-        }else if (!disliked.state) {
-            return knex.transaction((trx) => knex("item_dislike")
+        } else if (!disliked.state) {
+            return knex.transaction(trx => knex("item_dislike")
             .transacting(trx)
             .where({id, by_whom: ctx.user})
             .update({state: true})
@@ -146,12 +146,12 @@ router
     const {id, username} = ctx.params
     await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
     .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
-    .then(knex.transaction((trx) => knex("item_dislike")
+    .then(() => knex.transaction(trx => knex("item_dislike")
         .transacting(trx)
-        .where({id, username, by_whom: ctx.user})
+        .where({id, by_whom: ctx.user})
         .update({state: false})
         .then(trx.commit)
-        .catch((e) => {
+        .catch(e => {
             trx.rollback()
             throw e
         })
