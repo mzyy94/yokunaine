@@ -50,7 +50,7 @@ router
         json: true
     })
     .then(auth => {
-        ctx.assert(auth.client_id === client_id, 401)
+        ctx.assert(auth.client_id === client_id, 500)
         return Promise.all([
             auth.token,
             rp({
