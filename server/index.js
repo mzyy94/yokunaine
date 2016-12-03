@@ -164,8 +164,14 @@ router
 app
 .use(async (ctx, next) => {
     ctx.req.setTimeout(10000)
-    await next()
+    try {
+        await next()
+    } catch (e) {
+        ctx.status = e.status || 500
+        ctx.type = "json"
+        ctx.body = {error: e.message}
+    }
 })
 .use(router.routes())
-.use(router.allowedMethods())
+.use(router.allowedMethods({throw: true}))
 .listen(3000)
