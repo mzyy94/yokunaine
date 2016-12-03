@@ -109,7 +109,7 @@ router
     // Token should be "Authorization: Bearer <UUID>"
     const token = auth.replace(/^Bearer /, "")
     // Authentication (token to user)
-    await knex("users").first("id").where("token", token)
+    await knex("users").first("id").where({token, revoked: false})
     .then(user => {
         ctx.assert(user, 403)
         ctx.user = user.id
@@ -153,7 +153,6 @@ router
         ctx.body = {complete: true}
     })
 })
-
 
 // Run API Server
 app
