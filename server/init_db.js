@@ -11,7 +11,7 @@ const knex = require("knex")({
 
 // Create table
 knex.schema.createTableIfNotExists("users", (table) => {
-    table.string("name").primary()
+    table.string("id").primary()
     table.string("token")
     table.string("source")
     table.timestamps()
@@ -31,7 +31,7 @@ knex.schema.createTableIfNotExists("item_dislike", (table) => {
 // Create test account
 const token = uuid.v1()
 const suffix = new Date().getMilliseconds()
-knex("users").insert({name: `testuser${suffix}`, token: token, source: "github" })
+knex("users").insert({id: `testuser${suffix}`, token: token, source: "github" })
 .then(() => console.log(`New user testuser${suffix} created.
 Request with "Authorization: Bearer ${token}" http header.
 `))

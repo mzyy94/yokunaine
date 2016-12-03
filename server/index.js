@@ -73,7 +73,7 @@ router
             const token = uuid.v1()
             return Promise.all([
                 token,
-                knex("users").insert({name: user.id, token, source: "qiita" })
+                knex("users").insert({id: user.id, token, source: "qiita" })
             ])
         })
         .then(([token]) => {
@@ -99,12 +99,12 @@ const checkAuth = async (ctx, next) => {
     }
     const token = auth.split(" ").pop()
     // Authentication (token to user)
-    await knex.first("name").where("token", token).from("users")
-    .then(username => {
-        if (username === undefined) {
+    await knex.first("id").where("token", token).from("users")
+    .then(user => {
+        if (user === undefined) {
             throw new Error() // TODO: Return HTTP error status
         }
-        ctx.user = username.name
+        ctx.user = user.id
     })
     await next()
 }
