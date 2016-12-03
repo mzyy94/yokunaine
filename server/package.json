@@ -1,0 +1,31 @@
+{
+  "name": "yokunaine-server",
+  "version": "0.0.1",
+  "description": "いいね　だけじゃ　だめだよ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --harmony index.js"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mzyy94/yokunaine.git"
+  },
+  "keywords": [
+    "yokunaine"
+  ],
+  "author": "mzyy94",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mzyy94/yokunaine/issues"
+  },
+  "homepage": "https://github.com/mzyy94/yokunaine#readme",
+  "dependencies": {
+    "koa": "^2.0.0-alpha.7",
+    "koa-router": "^7.0.1"
+  }
+}
