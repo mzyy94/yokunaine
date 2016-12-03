@@ -1,3 +1,6 @@
+"use strict"
+
+// require modules
 const Koa = require("koa")
 const Router = require("koa-router")
 const rp = require("request-promise")
@@ -13,46 +16,46 @@ const knex = require("knex")({
     useNullAsDefault: true
 })
 
+// define constant values
 const app = new Koa()
 const router = new Router({prefix: "/api/v1"})
 const secretKey = crypto.randomBytes(32).hexSlice()
+const {client_id, client_secret} = process.env
+const endpoint = "https://qiita.com/api/v2"
 
-// Authorization control (generate UUID using OAuth response)
+
+
+// Authorization control
 router
 .get("/auth", async (ctx, next) => {
-    ctx.assert(!!ctx.query.callback, 400)
+    const {callback} = ctx.query
+    ctx.assert(callback, 400)
     const token = crypto.randomBytes(32).hexSlice()
+    const expires = new Date(Date.now() + 300000)
     ctx.cookies
-    .set("callback", ctx.query.callback, {expires: new Date(Date.now() + 300000)})
-    .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires: new Date(Date.now() + 300000)})
-    ctx.redirect(`https://qiita.com/api/v2/oauth/authorize?client_id=${process.env.client_id}&scope=read_qiita&state=${token}`)
+    .set("callback", callback, {expires})
+    .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires})
+    ctx.redirect(`${endpoint}/oauth/authorize?client_id=${client_id}&scope=read_qiita&state=${token}`)
 })
 .get("/auth/callback", async (ctx, next) => {
-    ctx.assert(!!ctx.cookies.get("token") && !!ctx.cookies.get("callback") && !!ctx.query.code && !!ctx.query.state, 400)
-    ctx.assert(crypto.createHmac("sha256", secretKey).update(ctx.query.state).digest("hex") === ctx.cookies.get("token"), 400)
+    const {code, state} = ctx.query
+    ctx.assert(ctx.cookies.get("callback") && code && state, 400)
+    ctx.assert(crypto.createHmac("sha256", secretKey).update(state).digest("hex") === ctx.cookies.get("token"), 400)
     ctx.cookies.set("token")
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 500))
     await rp({
         method: "POST",
-        uri: "https://qiita.com/api/v2/access_tokens",
-        body: {
-            client_id: process.env.client_id,
-            client_secret: process.env.client_secret,
-            code: ctx.query.code
-        },
+        uri: `${endpoint}/access_tokens`,
+        body: {client_id, client_secret, code},
         json: true
     })
     .then(auth => {
-        if (auth.client_id !== process.env.client_id) {
-            ctx.throw(401)
-        }
+        ctx.assert(auth.client_id === client_id, 401)
         return Promise.all([
             auth.token,
             rp({
-                uri: "https://qiita.com/api/v2/authenticated_user",
-                headers: {
-                    "Authorization": `Bearer ${auth.token}`
-                }
+                uri: `${endpoint}/authenticated_user`,
+                headers: {"Authorization": `Bearer ${auth.token}`}
             })
         ])
     })
@@ -60,7 +63,7 @@ router
             user,
             rp({
                 method: "DELETE",
-                uri: `https://qiita.com/api/v2/access_tokens/${token}`
+                uri: `${endpoint}/access_tokens/${token}`
             })
         ])
     )
@@ -68,7 +71,7 @@ router
         const token = uuid.v1()
         return Promise.all([
             token,
-            knex("users").insert({id: user.id, token, source: "qiita" })
+            knex("users").insert({id: user.id, token, source: "qiita"})
         ])
     })
     .then(([token]) => {
@@ -86,12 +89,12 @@ router
 const checkAuth = async (ctx, next) => {
     // Token should be "Authorization: Bearer <UUID>"
     const auth = ctx.header.authorization
-    ctx.assert(!!auth, 401)
-    const token = auth.split(" ").pop()
+    ctx.assert(auth, 401)
+    const token = auth.replace(/^Bearer /, "")
     // Authentication (token to user)
     await knex.first("id").where("token", token).from("users")
     .then(user => {
-        ctx.assert(!!user, 403)
+        ctx.assert(user, 403)
         ctx.user = user.id
     })
     await next()
@@ -137,7 +140,7 @@ router
             ctx.throw(405)
         }
     })
-    .then(status => {
+    .then(() => {
         ctx.body = {complete: true}
     })
 })
@@ -156,11 +159,13 @@ router
             throw e
         })
     ))
-    .then(status => {
+    .then(() => {
         ctx.body = {complete: true}
     })
 })
 
+
+// Run API Server
 app
 .use(async (ctx, next) => {
     ctx.set("Access-Control-Allow-Origin", "*")
