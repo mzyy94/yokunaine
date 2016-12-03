@@ -163,6 +163,9 @@ router
 
 app
 .use(async (ctx, next) => {
+    ctx.set("Access-Control-Allow-Origin", "*")
+    ctx.set("Access-Control-Allow-Headers", "Authorization")
+    ctx.set("Access-Control-Allow-Methods", "GET, PUT, DELETE")
     ctx.req.setTimeout(10000)
     try {
         await next()
