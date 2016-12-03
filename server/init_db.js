@@ -1,13 +1,5 @@
-const uuid = require("uuid")
-const knex = require("knex")({
-    client: "sqlite3",
-    connection: {
-        filename: "./development.db",
-        timezone: "UTC"
-    },
-    acquireConnectionTimeout: 1000,
-    useNullAsDefault: true
-})
+const Knex = require("knex")
+const knex = Knex(require("./knexfile.js")[process.env.NODE_ENV || "development"])
 
 // Create table
 knex.schema.createTableIfNotExists("users", (table) => {
@@ -27,11 +19,3 @@ knex.schema.createTableIfNotExists("item_dislike", (table) => {
     table.primary("by_whom", "id")
 })
 .then(() => console.log("Item_dislike table initialize done."))
-
-// Create test account
-const token = uuid.v1()
-const suffix = new Date().getMilliseconds()
-knex("users").insert({id: `testuser${suffix}`, token: token, revoked: false })
-.then(() => console.log(`New user testuser${suffix} created.
-Request with "Authorization: Bearer ${token}" http header.
-`))

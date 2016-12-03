@@ -3,24 +3,17 @@
 // require modules
 const Koa = require("koa")
 const Router = require("koa-router")
+const Knex = require("knex")
 const rp = require("request-promise")
 const crypto = require("crypto")
 const uuid = require("uuid")
-const knex = require("knex")({
-    client: "sqlite3",
-    connection: {
-        filename: "./development.db",
-        timezone: "UTC"
-    },
-    acquireConnectionTimeout: 1000,
-    useNullAsDefault: true
-})
 
 // define constant values
 const app = new Koa()
 const router = new Router({prefix: "/api/v1"})
 const secretKey = crypto.randomBytes(32).hexSlice()
-const {client_id, client_secret} = process.env
+const {client_id, client_secret, NODE_ENV} = process.env
+const knex = Knex(require("./knexfile.js")[NODE_ENV || "development"])
 const endpoint = "https://qiita.com/api/v2"
 
 
