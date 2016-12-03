@@ -20,90 +20,78 @@ const secretKey = crypto.randomBytes(32).hexSlice()
 // Authorization control (generate UUID using OAuth response)
 router
 .get("/auth", async (ctx, next) => {
-    if (!!ctx.query.callback) {
-        const token = crypto.randomBytes(32).hexSlice()
-        ctx.cookies
-        .set("callback", ctx.query.callback, {expires: new Date(Date.now() + 300000)})
-        .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires: new Date(Date.now() + 300000)})
-        ctx.redirect(`https://qiita.com/api/v2/oauth/authorize?client_id=${process.env.client_id}&scope=read_qiita&state=${token}`)
-    } else {
-        throw new Error() // TODO: Response HTTP response error
-    }
+    ctx.assert(!!ctx.query.callback, 400)
+    const token = crypto.randomBytes(32).hexSlice()
+    ctx.cookies
+    .set("callback", ctx.query.callback, {expires: new Date(Date.now() + 300000)})
+    .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires: new Date(Date.now() + 300000)})
+    ctx.redirect(`https://qiita.com/api/v2/oauth/authorize?client_id=${process.env.client_id}&scope=read_qiita&state=${token}`)
 })
 .get("/auth/callback", async (ctx, next) => {
-    if (!!ctx.cookies.get("token") && !!ctx.cookies.get("callback") && !!ctx.query.code && !!ctx.query.state) {
-        if (crypto.createHmac("sha256", secretKey).update(ctx.query.state).digest("hex") !== ctx.cookies.get("token")) {
-            throw new Error() // TODO: Response HTTP response error
+    ctx.assert(!!ctx.cookies.get("token") && !!ctx.cookies.get("callback") && !!ctx.query.code && !!ctx.query.state, 400)
+    ctx.assert(crypto.createHmac("sha256", secretKey).update(ctx.query.state).digest("hex") === ctx.cookies.get("token"), 400)
+    ctx.cookies.set("token")
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    await rp({
+        method: "POST",
+        uri: "https://qiita.com/api/v2/access_tokens",
+        body: {
+            client_id: process.env.client_id,
+            client_secret: process.env.client_secret,
+            code: ctx.query.code
+        },
+        json: true
+    })
+    .then(auth => {
+        if (auth.client_id !== process.env.client_id) {
+            ctx.throw(401)
         }
-        ctx.cookies.set("token")
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        await rp({
-            method: "POST",
-            uri: "https://qiita.com/api/v2/access_tokens",
-            body: {
-                client_id: process.env.client_id,
-                client_secret: process.env.client_secret,
-                code: ctx.query.code
-            },
-            json: true
-        })
-        .then(auth => {
-            if (auth.client_id !== process.env.client_id) {
-                throw new Error() // TODO: Response HTTP response error
-            }
-            return Promise.all([
-                auth.token,
-                rp({
-                    uri: "https://qiita.com/api/v2/authenticated_user",
-                    headers: {
-                        "Authorization": `Bearer ${auth.token}`
-                    }
-                })
-            ])
-        })
-        .then(([token, user]) => Promise.all([
-                user,
-                rp({
-                    method: "DELETE",
-                    uri: `https://qiita.com/api/v2/access_tokens/${token}`
-                })
-            ])
-        )
-        .then(([user]) => {
-            const token = uuid.v1()
-            return Promise.all([
-                token,
-                knex("users").insert({id: user.id, token, source: "qiita" })
-            ])
-        })
-        .then(([token]) => {
-            ctx.redirect(`${ctx.cookies.get("callback")}?token=${token}`)
-            ctx.cookies.set("callback")
-        })
-        .catch(err => {
-            console.error(err)
-            throw err
-        })
-        await next()
-    } else {
-        throw new Error() // TODO: Response HTTP response error
-    }
+        return Promise.all([
+            auth.token,
+            rp({
+                uri: "https://qiita.com/api/v2/authenticated_user",
+                headers: {
+                    "Authorization": `Bearer ${auth.token}`
+                }
+            })
+        ])
+    })
+    .then(([token, user]) => Promise.all([
+            user,
+            rp({
+                method: "DELETE",
+                uri: `https://qiita.com/api/v2/access_tokens/${token}`
+            })
+        ])
+    )
+    .then(([user]) => {
+        const token = uuid.v1()
+        return Promise.all([
+            token,
+            knex("users").insert({id: user.id, token, source: "qiita" })
+        ])
+    })
+    .then(([token]) => {
+        ctx.redirect(`${ctx.cookies.get("callback")}?token=${token}`)
+        ctx.cookies.set("callback")
+    })
+    .catch(err => {
+        console.error(err)
+        ctx.throw(500)
+    })
+    await next()
 })
 
 // Authentication
 const checkAuth = async (ctx, next) => {
     // Token should be "Authorization: Bearer <UUID>"
     const auth = ctx.header.authorization
-    if (!auth) {
-        throw new Error() // TODO: Return HTTP error status
-    }
+    ctx.assert(!!auth, 401)
     const token = auth.split(" ").pop()
     // Authentication (token to user)
     await knex.first("id").where("token", token).from("users")
     .then(user => {
-        if (user === undefined) {
-            throw new Error() // TODO: Return HTTP error status
-        }
+        ctx.assert(!!user, 403)
         ctx.user = user.id
     })
     await next()
@@ -146,7 +134,7 @@ router
                 throw e
             }))
         } else {
-            throw new Error() // TODO: Response HTTP response error
+            ctx.throw(405)
         }
     })
     .then(status => {
@@ -157,11 +145,7 @@ router
     // Unset disliked status and get new dislike count
     const {id, username} = ctx.params
     await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
-    .then(disliked => {
-        if (disliked === undefined || !disliked.state) {
-            throw new Error() // TODO: Response HTTP response error
-        }
-    })
+    .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
     .then(knex.transaction((trx) => knex("item_dislike")
         .transacting(trx)
         .where({id, username, by_whom: ctx.user})
