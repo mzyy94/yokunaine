@@ -3,12 +3,33 @@
   <head>
     <meta charset="utf-8">
     <title>Yokunaine Options</title>
+    <script src="options.js" charset="utf-8"></script>
+    <style media="screen">
+        label {
+            width: 100px;
+            display: inline-block;
+            text-align: right;
+        }
+        input {
+            width: 400px;
+        }
+        fieldset {
+            border: none;
+        }
+    </style>
   </head>
   <body>
     <h1>Settings</h1>
-    <label for="token">Token:</label>
-    <input type="text" name="token" value="" style="width: 400px" disabled="true">
-    <button type="button" name="action">Revoke Token</button>
-    <script src="options.js" charset="utf-8"></script>
+    <fieldset name="service">
+      <label for="token">Service URL:</label>
+      <input type="text" name="uri" value="">
+      <button name="update" disabled>Update</button>
+      <button name="reset">Reset</button>
+    </fieldset>
+    <fieldset name="token">
+      <label for="token">Token:</label>
+      <input type="text" name="token" value="" disabled>
+      <button name="token">Revoke Token</button>
+    </fieldset>
   </body>
 </html>
