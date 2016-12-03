@@ -5,10 +5,7 @@ class Button extends Component {
 
     constructor(props) {
         super(props)
-        this.state = {
-            liked: false,
-            disliked: false
-        }
+        this.state = Store.getState()
     }
 
     componentWillMount() {
