@@ -28,6 +28,8 @@
     "knex": "^0.12.6",
     "koa": "^2.0.0-alpha.7",
     "koa-router": "^7.0.1",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1",
     "sqlite": "^2.2.3",
     "uuid": "^3.0.1"
   }

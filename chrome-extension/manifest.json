@@ -11,6 +11,9 @@
   "permissions": [
     "storage"
   ],
+  "web_accessible_resources": [
+    "options.html"
+  ],
   "author": "mzyy94",
   "content_scripts": [{
     "matches": [ "http://qiita.com/*/items/*" ],

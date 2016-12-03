@@ -1,5 +1,8 @@
 const Koa = require("koa")
 const Router = require("koa-router")
+const rp = require("request-promise")
+const crypto = require("crypto")
+const uuid = require("uuid")
 const knex = require("knex")({
     client: "sqlite3",
     connection: {
@@ -12,8 +15,80 @@ const knex = require("knex")({
 
 const app = new Koa()
 const router = new Router({prefix: "/api/v1"})
+const secretKey = crypto.randomBytes(32).hexSlice()
 
-//TODO: Authorization control (generate UUID using OAuth response)
+// Authorization control (generate UUID using OAuth response)
+router
+.get("/auth", async (ctx, next) => {
+    if (!!ctx.query.callback) {
+        const token = crypto.randomBytes(32).hexSlice()
+        ctx.cookies
+        .set("callback", ctx.query.callback, {expires: new Date(Date.now() + 300000)})
+        .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires: new Date(Date.now() + 300000)})
+        ctx.redirect(`https://qiita.com/api/v2/oauth/authorize?client_id=${process.env.client_id}&scope=read_qiita&state=${token}`)
+    } else {
+        throw new Error() // TODO: Response HTTP response error
+    }
+})
+.get("/auth/callback", async (ctx, next) => {
+    if (!!ctx.cookies.get("token") && !!ctx.cookies.get("callback") && !!ctx.query.code && !!ctx.query.state) {
+        if (crypto.createHmac("sha256", secretKey).update(ctx.query.state).digest("hex") !== ctx.cookies.get("token")) {
+            throw new Error() // TODO: Response HTTP response error
+        }
+        ctx.cookies.set("token")
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        await rp({
+            method: "POST",
+            uri: "https://qiita.com/api/v2/access_tokens",
+            body: {
+                client_id: process.env.client_id,
+                client_secret: process.env.client_secret,
+                code: ctx.query.code
+            },
+            json: true
+        })
+        .then(auth => {
+            if (auth.client_id !== process.env.client_id) {
+                throw new Error() // TODO: Response HTTP response error
+            }
+            return Promise.all([
+                auth.token,
+                rp({
+                    uri: "https://qiita.com/api/v2/authenticated_user",
+                    headers: {
+                        "Authorization": `Bearer ${auth.token}`
+                    }
+                })
+            ])
+        })
+        .then(([token, user]) => Promise.all([
+                user,
+                rp({
+                    method: "DELETE",
+                    uri: `https://qiita.com/api/v2/access_tokens/${token}`
+                })
+            ])
+        )
+        .then(([user]) => {
+            const token = uuid.v1()
+            return Promise.all([
+                token,
+                knex("users").insert({name: user.id, token, source: "qiita" })
+            ])
+        })
+        .then(([token]) => {
+            ctx.redirect(`${ctx.cookies.get("callback")}?token=${token}`)
+            ctx.cookies.set("callback")
+        })
+        .catch(err => {
+            console.error(err)
+            throw err
+        })
+        await next()
+    } else {
+        throw new Error() // TODO: Response HTTP response error
+    }
+})
 
 // Authentication
 const checkAuth = async (ctx, next) => {
@@ -104,7 +179,7 @@ router
 
 app
 .use(async (ctx, next) => {
-    ctx.req.setTimeout(1000)
+    ctx.req.setTimeout(10000)
     await next()
 })
 .use(router.routes())
