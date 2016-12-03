@@ -18,9 +18,9 @@ const endpoint = "https://qiita.com/api/v2"
 
 
 
-// Authorization control
 router
 .get("/auth", async (ctx, next) => {
+    // Authentication request
     const {callback} = ctx.query
     ctx.assert(callback, 400)
     const token = crypto.randomBytes(32).hexSlice()
@@ -31,6 +31,7 @@ router
     ctx.redirect(`${endpoint}/oauth/authorize?client_id=${client_id}&scope=read_qiita&state=${token}`)
 })
 .get("/auth/callback", async (ctx, next) => {
+    // Authorization generate
     const {code, state} = ctx.query
     ctx.assert(ctx.cookies.get("callback") && code && state, 400)
     ctx.assert(crypto.createHmac("sha256", secretKey).update(state).digest("hex") === ctx.cookies.get("token"), 400)
@@ -99,9 +100,6 @@ router
         ctx.body = {complete: true}
     })
 })
-
-// Dislike API
-router
 .use("/:username/items/:id", async (ctx, next) => {
     // Authentication
     const auth = ctx.header.authorization
