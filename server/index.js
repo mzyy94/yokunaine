@@ -155,6 +155,13 @@ router
 // Run API Server
 app
 .use(async (ctx, next) => {
+    await next()
+    const {method, ip, status, path, length, protocol, user} = ctx
+    const {"user-agent": ua, "accept-language": lang} = ctx.headers
+    knex("access_log").insert({method, ip, status, path, length, ua, lang, protocol, user})
+    .then(() => {})
+})
+.use(async (ctx, next) => {
     ctx.set("Access-Control-Allow-Origin", "*")
     ctx.set("Access-Control-Allow-Headers", "Authorization")
     ctx.set("Access-Control-Allow-Methods", "GET, PUT, DELETE")

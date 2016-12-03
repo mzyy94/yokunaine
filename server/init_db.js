@@ -19,3 +19,17 @@ knex.schema.createTableIfNotExists("item_dislike", (table) => {
     table.primary("by_whom", "id")
 })
 .then(() => console.log("Item_dislike table initialize done."))
+
+knex.schema.createTableIfNotExists("access_log", (table) => {
+    table.string("method")
+    table.string("ip")
+    table.integer("status")
+    table.string("path")
+    table.integer("length")
+    table.string("ua")
+    table.string("lang")
+    table.string("protocol")
+    table.string("user")
+    table.timestamps()
+})
+.then(() => console.log("Access_log table initialize done."))
