@@ -55,24 +55,35 @@ router
             auth.token,
             rp({
                 uri: `${endpoint}/authenticated_user`,
-                headers: {"Authorization": `Bearer ${auth.token}`}
+                headers: {"Authorization": `Bearer ${auth.token}`},
+                json: true
             })
         ])
     })
     .then(([token, user]) => Promise.all([
-            user,
-            rp({
-                method: "DELETE",
-                uri: `${endpoint}/access_tokens/${token}`
-            })
-        ])
-    )
-    .then(([user]) => {
+        user,
+        rp({
+            method: "DELETE",
+            uri: `${endpoint}/access_tokens/${token}`
+        })
+    ]))
+    .then(([user]) => Promise.all([
+        user.id,
+        knex.first("id").where({id: user.id}).from("users"),
+    ]))
+    .then(([id, exists]) => {
         const token = uuid.v1()
-        return Promise.all([
-            token,
-            knex("users").insert({id: user.id, token, source: "qiita"})
-        ])
+        if (!exists) {
+            return Promise.all([
+                token,
+                knex("users").insert({id, token, revoked: false})
+            ])
+        } else {
+            return Promise.all([
+                token,
+                knex("users").where({id}).update({revoked: false, token})
+            ])
+        }
     })
     .then(([token]) => {
         ctx.redirect(`${ctx.cookies.get("callback")}?token=${token}`)
@@ -82,7 +93,18 @@ router
         console.error(err)
         ctx.throw(500)
     })
-    await next()
+})
+.delete("/auth/token/:token", async (ctx, next) => {
+    const {token} = ctx.params
+    await knex.first("id", "revoked").where("token", token).from("users")
+    .then(user => {
+        ctx.assert(user, 404)
+        ctx.assert(!user.revoked, 400)
+        return knex("users").where({id: user.id}).update({revoked: true})
+    })
+    .then(() => {
+        ctx.body = {complete: true}
+    })
 })
 
 // Dislike API
