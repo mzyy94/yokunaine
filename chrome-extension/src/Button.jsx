@@ -18,15 +18,28 @@ class Button extends Component {
 
     toggleStatus = () => {
         const {liked, disliked} = this.state
+        const [username, itemId] = location.pathname.slice(1).split("/items/")
         if (liked) {
             return
         }
         if (disliked) {
-            // TODO: HTTP request to server with DELETE method
-            Store.dispatch({type: UNSET_DISLIKE})
+            // HTTP request to server with DELETE method
+            chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+                fetch(`${service_uri}/${username}/items/${itemId}`, {
+                    method: "DELETE",
+                    headers: {"Authorization": `Bearer ${token}`}
+                })
+                .then(() => Store.dispatch({type: UNSET_DISLIKE}))
+            })
         } else {
-            // TODO: HTTP request to server with POST method
-            Store.dispatch({type: SET_DISLIKE})
+            // HTTP request to server with POST method
+            chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+                fetch(`${service_uri}/${username}/items/${itemId}`, {
+                    method: "POST",
+                    headers: {"Authorization": `Bearer ${token}`}
+                })
+                .then(() => Store.dispatch({type: SET_DISLIKE}))
+            })
         }
     }
 

@@ -48,8 +48,12 @@ ReactDOM.render(
     document.getElementById("dislike-label")
 )
 
-//fetch(`https://yokunaine.com/item/${id}`)
-// Sample values
-Promise.resolve({disliked: Math.random() < 0.5, count: (Math.random() * 100) | 0})
-.then(status => Store.dispatch({type: INITIAL_STATE, data: status}))
-.catch(console.error)
+chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+    const [username, itemId] = location.pathname.slice(1).split("/items/")
+    fetch(`${service_uri}/${username}/items/${itemId}`, {
+        headers: {"Authorization": `Bearer ${token}`}
+    })
+    .then(response => response.json())
+    .then(status => Store.dispatch({type: INITIAL_STATE, data: status}))
+    .catch(console.error)
+})
