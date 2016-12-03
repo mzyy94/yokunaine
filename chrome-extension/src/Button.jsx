@@ -31,7 +31,12 @@ class Button extends Component {
                     method: "DELETE",
                     headers: {"Authorization": `Bearer ${token}`}
                 })
-                .then(() => Store.dispatch({type: UNSET_DISLIKE}))
+                .then(response => {
+                    if (response.ok) {
+                        Store.dispatch({type: UNSET_DISLIKE})
+                    }
+                })
+                .catch(console.error)
             })
         } else {
             // HTTP request to server with POST method
@@ -40,7 +45,12 @@ class Button extends Component {
                     method: "POST",
                     headers: {"Authorization": `Bearer ${token}`}
                 })
-                .then(() => Store.dispatch({type: SET_DISLIKE}))
+                .then(response => {
+                    if (response.ok) {
+                        Store.dispatch({type: SET_DISLIKE})
+                    }
+                })
+                .catch(console.error)
             })
         }
     }
