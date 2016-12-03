@@ -69,7 +69,7 @@ router
     ]))
     .then(([user]) => Promise.all([
         user.id,
-        knex.first("id").where({id: user.id}).from("users"),
+        knex("users").first("id").where({id: user.id}),
     ]))
     .then(([id, exists]) => {
         const token = uuid.v1()
@@ -96,7 +96,7 @@ router
 })
 .delete("/auth/token/:token", async (ctx, next) => {
     const {token} = ctx.params
-    await knex.first("id", "revoked").where("token", token).from("users")
+    await knex("users").first("id", "revoked").where("token", token)
     .then(user => {
         ctx.assert(user, 404)
         ctx.assert(!user.revoked, 400)
@@ -116,7 +116,7 @@ router
     // Token should be "Authorization: Bearer <UUID>"
     const token = auth.replace(/^Bearer /, "")
     // Authentication (token to user)
-    await knex.first("id").where("token", token).from("users")
+    await knex("users").first("id").where("token", token)
     .then(user => {
         ctx.assert(user, 403)
         ctx.user = user.id
@@ -125,7 +125,7 @@ router
 })
 .get("/:username/items/:id", async (ctx, next) => {
     // Get disliked status and dislike count from DB
-    await knex.select("by_whom").where({id: ctx.params.id, state: true}).from("item_dislike")
+    await knex("item_dislike").select("by_whom").where({id: ctx.params.id, state: true})
     .then(users => {
         ctx.body = {
             disliked: users.map(_=>_.by_whom).includes(ctx.user),
@@ -136,27 +136,12 @@ router
 .post("/:username/items/:id", async (ctx, next) => {
     // Set disliked status and get new dislike count
     const {id, username} = ctx.params
-    await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
+    await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => {
         if (disliked === undefined) {
-            return knex.transaction(trx => knex("item_dislike")
-            .transacting(trx)
-            .insert({id, username, by_whom: ctx.user, state: true})
-            .then(trx.commit)
-            .catch(e => {
-                trx.rollback()
-                throw e
-            }))
+            return knex("item_dislike").insert({id, username, by_whom: ctx.user, state: true})
         } else if (!disliked.state) {
-            return knex.transaction(trx => knex("item_dislike")
-            .transacting(trx)
-            .where({id, by_whom: ctx.user})
-            .update({state: true})
-            .then(trx.commit)
-            .catch(e => {
-                trx.rollback()
-                throw e
-            }))
+            return knex("item_dislike").where({id, by_whom: ctx.user}).update({state: true})
         } else {
             ctx.throw(405)
         }
@@ -168,18 +153,9 @@ router
 .delete("/:username/items/:id", async (ctx, next) => {
     // Unset disliked status and get new dislike count
     const {id, username} = ctx.params
-    await knex.first("state").where({id, by_whom: ctx.user}).from("item_dislike")
+    await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
-    .then(() => knex.transaction(trx => knex("item_dislike")
-        .transacting(trx)
-        .where({id, by_whom: ctx.user})
-        .update({state: false})
-        .then(trx.commit)
-        .catch(e => {
-            trx.rollback()
-            throw e
-        })
-    ))
+    .then(() => knex("item_dislike").where({id, by_whom: ctx.user}).update({state: false}))
     .then(() => {
         ctx.body = {complete: true}
     })
