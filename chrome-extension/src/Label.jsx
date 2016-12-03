@@ -2,17 +2,18 @@ import {Component} from "react"
 import {Store} from "./Store"
 
 class Label extends Component {
-    state = {
-        count: 0
-    }
-
-    listener = () => {
-        const {count} = Store.getState()
-        this.setState({count: count})
+    constructor(props) {
+        super(props)
+        this.state = {
+            count: 0
+        }
     }
 
     componentWillMount() {
-        Store.subscribe(this.listener)
+        Store.subscribe(() => {
+            const {count} = Store.getState()
+            this.setState({count: count})
+        })
     }
 
     render() {

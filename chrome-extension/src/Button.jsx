@@ -2,21 +2,23 @@ import {Component} from "react"
 import {Store, SET_DISLIKE, UNSET_DISLIKE} from "./Store"
 
 class Button extends Component {
-    state = {
-        liked: false,
-        disliked: false
-    }
 
-    listener = () => {
-        const {liked, disliked} = Store.getState()
-        this.setState({liked: liked, disliked: disliked})
+    constructor(props) {
+        super(props)
+        this.state = {
+            liked: false,
+            disliked: false
+        }
     }
 
     componentWillMount() {
-        Store.subscribe(this.listener)
+        Store.subscribe(() => {
+            const {liked, disliked} = Store.getState()
+            this.setState({liked: liked, disliked: disliked})
+        })
     }
 
-    toggleStatus = () => {
+    toggleStatus() {
         const {liked, disliked} = this.state
         const [username, itemId] = location.pathname.slice(1).split("/items/")
         if (liked) {
@@ -48,7 +50,7 @@ class Button extends Component {
         const {liked, disliked} = this.state
         return (
             <div className="LikeButton DislikeButton">
-                <button className={`p-button ${liked ? "disabled" : ""} ${disliked ? "liked" : ""}`} onClick={this.toggleStatus}>
+                <button className={`p-button ${liked ? "disabled" : ""} ${disliked ? "liked" : ""}`} onClick={this.toggleStatus.bind(this)}>
                     <span className={`fa fa-fw ${disliked ? "fa-check" : "fa-thumbs-down"}`}></span>
                     <span>よくないね</span>
                 </button>
