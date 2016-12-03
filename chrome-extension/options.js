@@ -63,9 +63,17 @@ document.addEventListener("DOMContentLoaded", () => {
     $("button[name=token]").addEventListener("click", (eve) => {
         switch (eve.target.innerText) {
             case "Revoke Token":
-                chrome.storage.sync.remove("token", () => {
-                    $("input[name=token]").value = ""
-                    eve.target.innerText = "Get Token"
+                chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+                    fetch(`${service_uri}/auth/token/${token}`, {
+                        method: "DELETE"
+                    })
+                    .then(() => chrome.storage.sync.remove("token", () => {
+                        $("input[name=token]").value = ""
+                        eve.target.innerText = "Get Token"
+                    }))
+                    .catch((e) => {
+                        alert(`Failed to send revoke request.`)
+                    })
                 })
                 break
             case "Get Token":
