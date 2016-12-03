@@ -18,7 +18,11 @@ const router = new Router({prefix: "/api/v1"})
 // Authentication
 const checkAuth = async (ctx, next) => {
     // Token should be "Authorization: Bearer <UUID>"
-    const token = ctx.header.authorization.split(" ").pop()
+    const auth = ctx.header.authorization
+    if (!auth) {
+        throw new Error() // TODO: Return HTTP error status
+    }
+    const token = auth.split(" ").pop()
     // Authentication (token to user)
     await knex.first("name").where("token", token).from("users")
     .then(username => {
