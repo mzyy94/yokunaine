@@ -5,8 +5,8 @@ class Service extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            defaultUri: "http://localhost:3000/api/v1",
-            url: "localhost:3000/api/v1",
+            defaultUri: "https://service.yokunaine.mzyy94.com/api/v1",
+            url: "service.yokunaine.mzyy94.com/api/v1",
             modified: false
         }
     }
@@ -27,7 +27,7 @@ class Service extends Component {
     }
 
     updateAction() {
-        chrome.storage.sync.set({service_uri: `http://${this.state.url}`}, () => {
+        chrome.storage.sync.set({service_uri: `https://${this.state.url}`}, () => {
             this.setState({modified: false})
         })
     }
@@ -42,7 +42,7 @@ class Service extends Component {
             <Form.Field>
                 <label>Service URL</label>
                 <Form.Group inline={true}>
-                    <Input label="http://" placeholder="example.com" name="url" value={url} onChange={this.changeText.bind(this)} />
+                    <Input label="https://" placeholder="service.yokunaine.example.com" name="url" value={url} onChange={this.changeText.bind(this)} />
                     <Button.Group>
                         <Button disabled={!modified} onClick={this.resetAction.bind(this)}>Cancel</Button>
                         <Button.Or />
