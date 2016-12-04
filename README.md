@@ -53,6 +53,9 @@ npm start
 よくないね。
 OAuthの認証後は[すぐにTokenを破棄](https://github.com/mzyy94/yokunaine/blob/master/server/index.js#L58)しているから悪用はされないはずだよ。
 
+### よくないねボタンが動かないんだけど
+
+サーバが落ちてるかもね。もしくはすでに「👍いいね」されてるとか。
 
 ### ソースコードがきもわるい
 
