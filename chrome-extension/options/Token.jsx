@@ -1,4 +1,5 @@
 import {Component} from "react"
+import {Button, Input, Form} from "semantic-ui-react"
 
 class Token extends Component {
 
@@ -59,14 +60,15 @@ class Token extends Component {
     render() {
         const {token} = this.state
         return (
-            <fieldset name="token">
-                <label htmlFor="token">Token:</label>
-                <input type="text" name="token" value={token} disabled />
-                <button name="token" onClick={this.tokenAction.bind(this)}>
-                    {token ? "Revoke Token" : "Get Token"}
-                </button>
-            </fieldset>
-
+            <Form.Field>
+                <label>Token</label>
+                <Input type="text" placeholder="UUID" action>
+                    <input value={token} disabled name="tolen" />
+                    <Button onClick={this.tokenAction.bind(this)} negative={!!token} positive={!token}>
+                        {token ? "Revoke Token" : "Get Token"}
+                    </Button>
+                </Input>
+            </Form.Field>
         )
     }
 }

@@ -25,6 +25,7 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin([
       {from: "options/index.html", to: "options.html"},
+      {from: "node_modules/semantic-ui-css/semantic.min.css"},
       {from: "manifest.json"},
     ])
   ]

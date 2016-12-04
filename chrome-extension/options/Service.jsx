@@ -1,11 +1,12 @@
 import {Component} from "react"
+import {Button, Input, Form} from "semantic-ui-react"
 
 class Service extends Component {
     constructor(props) {
         super(props)
         this.state = {
             defaultUri: "http://localhost:3000/api/v1",
-            uri: "http://localhost:3000/api/v1",
+            url: "localhost:3000/api/v1",
             modified: false
         }
     }
@@ -15,34 +16,40 @@ class Service extends Component {
             if (service_uri === undefined) {
                 chrome.storage.sync.set({service_uri: this.state.defaultUri}, () => {})
             } else {
-                this.setState({uri: service_uri})
+                const [,url] = service_uri.split("//")
+                this.setState({url})
             }
         })
     }
 
     changeText(e) {
-        this.setState({uri: e.target.value, modified: true})
+        this.setState({url: e.target.value, modified: true})
     }
 
     updateAction() {
-        chrome.storage.sync.set({service_uri: this.state.uri}, () => {
+        chrome.storage.sync.set({service_uri: `http://${this.state.url}`}, () => {
             this.setState({modified: false})
         })
     }
 
     resetAction() {
-        this.setState({uri: this.state.defaultUri, modified: false})
+        this.setState({url: this.state.defaultUri.split("//").pop(), modified: false})
     }
 
     render() {
-        const {uri, modified} = this.state
+        const {url, modified} = this.state
         return (
-            <fieldset name="service">
-                <label htmlFor="uri">Service URL:</label>
-                <input type="text" name="uri" value={uri} onChange={this.changeText.bind(this)} />
-                <button name="update" disabled={!modified} onClick={this.updateAction.bind(this)}>Update</button>
-                <button name="reset" disabled={!modified} onClick={this.resetAction.bind(this)}>Reset</button>
-            </fieldset>
+            <Form.Field>
+                <label>Service URL</label>
+                <Form.Group inline={true}>
+                    <Input label="http://" placeholder="example.com" name="url" value={url} onChange={this.changeText.bind(this)} />
+                    <Button.Group>
+                        <Button disabled={!modified} onClick={this.resetAction.bind(this)}>Cancel</Button>
+                        <Button.Or />
+                        <Button positive disabled={!modified} onClick={this.updateAction.bind(this)}>Save</Button>
+                    </Button.Group>
+                </Form.Group>
+            </Form.Field>
         )
     }
 }
