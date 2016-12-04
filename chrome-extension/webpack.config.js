@@ -27,6 +27,9 @@ module.exports = {
       {from: "options/index.html", to: "options.html"},
       {from: "node_modules/semantic-ui-css/semantic.min.css"},
       {from: "manifest.json"},
+      {from: "icon16.png"},
+      {from: "icon48.png"},
+      {from: "icon128.png"},
     ])
   ]
 };
