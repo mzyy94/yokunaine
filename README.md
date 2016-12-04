@@ -51,7 +51,7 @@ npm start
 ### 使ってて大丈夫なの？
 
 よくないね。
-OAuthの認証後は[すぐにTokenを破棄](https://github.com/mzyy94/yokunaine/blob/master/server/index.js#L58)しているから悪用はされないはずだよ。
+OAuthの認証後は[すぐにTokenを破棄](https://github.com/mzyy94/yokunaine/blob/master/server/index.js#L58-L61)しているから悪用はされないはずだよ。
 
 ### よくないねボタンが動かないんだけど
 
@@ -60,8 +60,7 @@ OAuthの認証後は[すぐにTokenを破棄](https://github.com/mzyy94/yokunain
 ### ソースコードがきもわるい
 
 よくないね。
-[コントリビューションガイドライン](https://github.com/mzyy94/yokunaine/wiki/Contribution-Guidelines)
-
+[コントリビューションガイドライン](https://github.com/mzyy94/yokunaine/wiki/Contribution-Guidelines)みてね。
 ## LICENSE
 
 [MIT](LICENSE)
