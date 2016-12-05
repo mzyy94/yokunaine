@@ -24,8 +24,7 @@ router
     ctx.assert(callback, 400)
     const token = crypto.randomBytes(32).hexSlice()
     const expires = new Date(Date.now() + 300000)
-    ctx.cookies
-    .set("callback", callback, {expires})
+    ctx.cookies.set("callback", callback, {expires})
     .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires})
     ctx.redirect(`${endpoint}/oauth/authorize?client_id=${client_id}&scope=read_qiita&state=${token}`)
 })
@@ -88,6 +87,7 @@ router
     })
 })
 .delete("/auth/token/:token", async (ctx, next) => {
+    // Revoke token
     const {token} = ctx.params
     await knex("users").first("id", "revoked").where("token", token)
     .then(user => {
@@ -151,21 +151,16 @@ router
 })
 .get("/statistics/dislike", async (ctx, next) => {
     await knex("item_dislike").count("*").where({state: true})
-    .then(([result]) => {
-        for (const count in result) {
-            return ctx.body = {total: result[count]}
-        }
-    })
+    .then(([result]) => ctx.body = {total: result["count(*)"] | 0})
 })
 
 // Run API Server
 app
 .use(async (ctx, next) => {
     await next()
-    const {method, ip, status, path, length, protocol, user} = ctx
-    const {"user-agent": ua, "accept-language": lang} = ctx.headers
+    const {method, ip, status, path, length, protocol, user, headers: {"user-agent": ua, "accept-language": lang}} = ctx
     knex("access_log").insert({method, ip, status, path, length, ua, lang, protocol, user})
-    .then(() => {})
+    .then(() => {console.log(method, ip, status, path, length, ua, lang, protocol, user)})
 })
 .use(async (ctx, next) => {
     // Set cors headers
