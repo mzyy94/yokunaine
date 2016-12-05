@@ -2,7 +2,7 @@
 
 いいね　だけじゃ　だめだよ
 
-![icon](icon.png)
+![icon](docs/icon.png)
 
 ## よくないよね
 
