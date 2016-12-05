@@ -17,14 +17,13 @@ class Button extends Component {
 
     toggleStatus() {
         const {liked, disliked} = this.state
-        const [username, itemId] = location.pathname.slice(1).split("/items/")
         if (liked) {
             return
         }
         if (disliked) {
             // HTTP request to server with DELETE method
             chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
-                fetch(`${service_uri}/${username}/items/${itemId}`, {
+                fetch(`${service_uri}${location.pathname}`, {
                     method: "DELETE",
                     headers: {"Authorization": `Bearer ${token}`}
                 })
@@ -38,7 +37,7 @@ class Button extends Component {
         } else {
             // HTTP request to server with POST method
             chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
-                fetch(`${service_uri}/${username}/items/${itemId}`, {
+                fetch(`${service_uri}${location.pathname}`, {
                     method: "POST",
                     headers: {"Authorization": `Bearer ${token}`}
                 })

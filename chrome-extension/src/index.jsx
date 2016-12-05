@@ -52,8 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
-    const [username, itemId] = location.pathname.slice(1).split("/items/")
-    fetch(`${service_uri}/${username}/items/${itemId}`, {
+    fetch(`${service_uri}${location.pathname}`, {
         headers: {"Authorization": `Bearer ${token}`}
     })
     .then(response => response.json())
