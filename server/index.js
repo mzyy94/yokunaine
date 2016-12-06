@@ -157,6 +157,9 @@ app
     ctx.req.setTimeout(10000)
     try {
         await next()
+        if (ctx.status === 404) {
+            ctx.throw(404, "not found")
+        }
     } catch (e) {
         console.error(e.message)
         ctx.status = e.status || 500
