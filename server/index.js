@@ -4,6 +4,7 @@
 const Koa = require("koa")
 const Router = require("koa-router")
 const Knex = require("knex")
+const ratelimit = require("koa-ratelimit-lru")
 const rp = require("request-promise")
 const crypto = require("crypto")
 const uuid = require("uuid")
@@ -12,7 +13,7 @@ const uuid = require("uuid")
 const app = new Koa()
 const router = new Router({prefix: "/api/v1"})
 const secretKey = crypto.randomBytes(32).hexSlice()
-const {client_id, client_secret, NODE_ENV} = process.env
+const {client_id, client_secret, rate_limit, NODE_ENV} = process.env
 const knex = Knex(require("./knexfile.js")[NODE_ENV || "development"])
 const endpoint = "https://qiita.com/api/v2"
 
@@ -167,6 +168,7 @@ app
         ctx.body = {code: e.status, message: e.message}
     }
 })
+.use(ratelimit({duration: 60000, rate: rate_limit || 30, id: ctx => `${ctx.method}${ctx.user}${ctx.ip}`, throw: true}))
 .use(router.routes())
 .use(router.allowedMethods({throw: true}))
 .listen(3000)
