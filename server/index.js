@@ -65,25 +65,17 @@ router
     ]))
     .then(([id, exists]) => {
         const token = uuid.v1()
+        const process = [token]
         if (!exists) {
-            return Promise.all([
-                token,
-                knex("users").insert({id, token, revoked: false})
-            ])
+            process.push(knex("users").insert({id, token, revoked: false}))
         } else {
-            return Promise.all([
-                token,
-                knex("users").where({id}).update({revoked: false, token, updated_at: knex.fn.now()})
-            ])
+            process.push(knex("users").where({id}).update({revoked: false, token, updated_at: knex.fn.now()}))
         }
+        return Promise.all(process)
     })
     .then(([token]) => {
         ctx.redirect(`${ctx.cookies.get("callback")}?token=${token}`)
         ctx.cookies.set("callback")
-    })
-    .catch(err => {
-        console.error(err)
-        ctx.throw(500)
     })
 })
 .delete("/auth/token/:token", async (ctx, next) => {
@@ -95,9 +87,7 @@ router
         ctx.assert(!user.revoked, 400)
         return knex("users").where({id: user.id}).update({revoked: true, updated_at: knex.fn.now()})
     })
-    .then(() => {
-        ctx.body = {complete: true}
-    })
+    .then(() => ctx.body = {complete: true})
 })
 .use("/:username/items/:id", async (ctx, next) => {
     // Authentication
@@ -135,9 +125,7 @@ router
             ctx.throw(405)
         }
     })
-    .then(() => {
-        ctx.body = {complete: true}
-    })
+    .then(() => ctx.body = {complete: true})
 })
 .delete("/:username/items/:id", async (ctx, next) => {
     // Unset disliked status
@@ -145,9 +133,7 @@ router
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
     .then(() => knex("item_dislike").where({id, by_whom: ctx.user}).update({state: false, updated_at: knex.fn.now()}))
-    .then(() => {
-        ctx.body = {complete: true}
-    })
+    .then(() => ctx.body = {complete: true})
 })
 .get("/statistics/dislike", async (ctx, next) => {
     await knex("item_dislike").count("*").where({state: true})
@@ -171,6 +157,7 @@ app
     try {
         await next()
     } catch (e) {
+        console.error(e.message)
         ctx.status = e.status || 500
         ctx.type = "json"
         ctx.body = {error: e.message}
