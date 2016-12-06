@@ -21,7 +21,7 @@ router
 .get("/auth", async (ctx, next) => {
     // Authentication request
     const {callback} = ctx.query
-    ctx.assert(callback, 400)
+    ctx.assert(callback, 400, `missing parameter "callback"`)
     const token = crypto.randomBytes(32).hexSlice()
     const expires = new Date(Date.now() + 300000)
     ctx.cookies.set("callback", callback, {expires})
@@ -31,8 +31,9 @@ router
 .get("/auth/callback", async (ctx, next) => {
     // Authorization generate
     const {code, state} = ctx.query
-    ctx.assert(ctx.cookies.get("callback") && code && state, 400)
-    ctx.assert(crypto.createHmac("sha256", secretKey).update(state).digest("hex") === ctx.cookies.get("token"), 400)
+    ctx.assert(code && state, 400, `missing parameter "code" and/or "state"`)
+    ctx.assert(ctx.cookies.get("callback") && ctx.cookies.get("token"), 400, `missing cookie "callback" and/or "token"`)
+    ctx.assert(crypto.createHmac("sha256", secretKey).update(state).digest("hex") === ctx.cookies.get("token"), 400, `invalid token`)
     ctx.cookies.set("token")
     await new Promise(resolve => setTimeout(resolve, 500))
     await rp({
@@ -42,7 +43,7 @@ router
         json: true
     })
     .then(auth => {
-        ctx.assert(auth.client_id === client_id, 500)
+        ctx.assert(auth.client_id === client_id, 500, "internal OAuth request failed")
         return Promise.all([
             auth.token,
             rp({
@@ -83,8 +84,8 @@ router
     const {token} = ctx.params
     await knex("users").first("id", "revoked").where("token", token)
     .then(user => {
-        ctx.assert(user, 404)
-        ctx.assert(!user.revoked, 400)
+        ctx.assert(user, 404, "not found")
+        ctx.assert(!user.revoked, 400, "already revoked")
         return knex("users").where({id: user.id}).update({revoked: true, updated_at: knex.fn.now()})
     })
     .then(() => ctx.body = {complete: true})
@@ -92,12 +93,12 @@ router
 .use("/:username/items/:id", async (ctx, next) => {
     // Authentication
     const auth = ctx.header.authorization
-    ctx.assert(auth, 401)
+    ctx.assert(auth, 401, "missing authorization header")
     // Token should be "Authorization: Bearer <UUID>"
     const token = auth.replace(/^Bearer /, "")
     await knex("users").first("id").where({token, revoked: false})
     .then(user => {
-        ctx.assert(user, 403)
+        ctx.assert(user, 403, "invalid authorization token")
         ctx.user = user.id
     })
     await next()
@@ -122,7 +123,7 @@ router
         } else if (!disliked.state) {
             return knex("item_dislike").where({id, by_whom: ctx.user}).update({state: true, updated_at: knex.fn.now()})
         } else {
-            ctx.throw(405)
+            ctx.throw(409, "already disliked")
         }
     })
     .then(() => ctx.body = {complete: true})
@@ -131,7 +132,7 @@ router
     // Unset disliked status
     const {id, username} = ctx.params
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
-    .then(disliked => ctx.assert(!!disliked && disliked.state, 405))
+    .then(disliked => ctx.assert(disliked && disliked.state, 404, "not found"))
     .then(() => knex("item_dislike").where({id, by_whom: ctx.user}).update({state: false, updated_at: knex.fn.now()}))
     .then(() => ctx.body = {complete: true})
 })
@@ -160,7 +161,7 @@ app
         console.error(e.message)
         ctx.status = e.status || 500
         ctx.type = "json"
-        ctx.body = {error: e.message}
+        ctx.body = {code: e.status, message: e.message}
     }
 })
 .use(router.routes())
