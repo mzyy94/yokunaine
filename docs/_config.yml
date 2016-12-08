@@ -1,0 +1,20 @@
+title: よくないね。
+description: いいね だけじゃ だめだよ
+url: https://yokunaine.mzyy94.com
+permalink: pretty
+subdir: /apidoc
+excerpt_separator: <!-- more -->
+
+collections:
+  - pages
+
+defaults:
+  -
+    scope:
+      path: ""
+    values:
+      layout: null
+      title: "-"
+
+exclude:
+  - _pages/Home.md

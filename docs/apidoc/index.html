@@ -1,0 +1,105 @@
+---
+title: API Docs
+---
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>{{ page.title | escape }} - {{ site.title | escape }}</title>
+	<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+	<meta name="keywords" content="よくないね">
+	<meta name="author" content="mzyy94">
+	<meta name="description" content="{{ site.description }}" />
+	<meta name="twitter:card" content="summary">
+	<meta property="og:title" conecnt="{{ page.title | escape }} - {{ site.title | escape }}">
+	<meta property="og:description" content="{{ site.description }}">
+	<meta property="og:url" content="{{ site.url }}{{ page.url | prepend: site.baseurl }}">
+	<meta property="og:type" content="website">
+	<meta property="og:image" content="https://yokunaine.mzyy94.com/icon.png">
+	<link rel="icon" href="/favicon.png" type="image/png">
+	<link rel="stylesheet" href="{{ site.subdir }}/css/style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="{{ site.subdir }}/js/main.js"></script>
+</head>
+<body>
+	<header>
+		<h1>
+			<a href="/"><img src="/icon.png" height="40" alt="logo"><span>{{ site.title }}</span></a>
+			<button type="button" class="open-nav" id="open-nav"></button>
+		</h1>
+
+		<form action="{{ site.subdir }}/search" method="get">
+			<input type="text" name="q" id="search-input" placeholder="Search">
+			<input type="submit" value="Search" style="display: none;">
+		</form>
+		<div id="sidebar" class="sidebar">
+			<section>
+				<h6>Documentation</h6>
+				<ul>
+					{% assign sorted_docs = site.documents | sort: "position" | where_exp: "docs", "docs.title != '-'"%}
+					{% for doc in sorted_docs %}
+					<li>
+						<a href="{{ site.subdir }}/#{{ doc.id | replace: '/', '' | replace: '.', ''}}">
+							{% if doc.pathname %}{{ doc.pathname }}{% else %}{{ doc.title }}{% endif %}
+							{% if doc.method %}<span class="endpoint {{ doc.method }}"></span>{% endif %}
+						</a>
+					</li>
+					{% endfor %}
+				</ul>
+			</section>
+			<section>
+				<h6>APIs</h6>
+				<ul>
+					{% assign sorted_docs = site.documents | sort: "position" | where_exp: "docs", "docs.pathname contains '/' "%}
+					{% for doc in sorted_docs %}
+					<li>
+						<a href="{{ site.subdir }}/#{{ doc.id | replace: '/', '' | replace: '.', ''}}">
+							{% if doc.pathname %}{{ doc.pathname }}{% else %}{{ doc.title }}{% endif %}
+							{% if doc.method %}<span class="endpoint {{ doc.method }}"></span>{% endif %}
+						</a>
+					</li>
+					{% endfor %}
+				</ul>
+			</section>
+			<p class="copyright">
+				<a href="https://cloudcannon.com/">
+					Template by CloudCannon
+				</a>
+			</p>
+		</div>
+	</header>
+	<main>
+		{% assign sorted_docs = site.documents | sort: "position" %}
+		{% for doc in sorted_docs %}
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="{{ doc.id | replace: '/', '' | replace: '.', '' }}">
+						{% if doc.pathname %}{{ doc.pathname }}{% else %}{{ doc.title }}{% endif %}
+						{% if doc.method %}
+						<span class="endpoint {{ doc.method }}"></span>
+						{% endif %}
+					</a>
+				</h3>
+				{% if doc.description %}
+				<p class="description">{{doc.description}}</p>
+				{% endif %}
+
+				{{ doc.excerpt | replace: "blockquote", "section"}}
+			</section>
+
+			{% if doc.excerpt %}
+			<section class="right-code">
+				{{ doc.content | remove: doc.excerpt }}
+			</section>
+			{% endif %}
+		</section>
+		{% endfor %}
+	</main>
+	<script>
+	document.getElementById("open-nav").addEventListener("click", function () {
+		document.body.classList.toggle("nav-open");
+	});
+	</script>
+</body>
+</html>
