@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --harmony index.js"
+    "start": "node --harmony index.js",
+    "lint": "eslint index.js"
   },
   "engineStrict": true,
   "engines": {
@@ -33,5 +34,8 @@
     "request-promise": "^4.1.1",
     "sqlite": "^2.2.3",
     "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.11.1"
   }
 }

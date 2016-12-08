@@ -1,0 +1,50 @@
+{
+	"env": {
+		"es6": true,
+		"node": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 2017
+	},
+	"rules": {
+		"indent": ["error", 4],
+		"no-var": ["error"],
+		"quotes": ["error", "double", {"allowTemplateLiterals": true}],
+		"semi": ["error", "never"],
+		"strict": ["error", "global"],
+		"prefer-template": ["error"],
+		"arrow-parens": ["error", "as-needed"],
+		"require-await": ["error"],
+		"linebreak-style": ["error", "unix"],
+		"no-console": "warn",
+		"no-unused-vars": ["error", {"vars": "all", "args": "after-used"}],
+		"no-constant-condition": "error",
+		"no-empty": "error",
+		"no-trailing-spaces": "error",
+		"dot-location": ["error", "property"],
+		"dot-notation": "error",
+		"eqeqeq": "error",
+		"global-require": "error",
+		"no-new-require": "error",
+		"no-sync": "error",
+		"brace-style": "error",
+		"array-bracket-spacing": ["error", "never"],
+		"capitalized-comments": ["error", "never"],
+		"block-spacing": "error",
+		"comma-dangle": ["error", "never"],
+		"comma-spacing": ["error", {"before": false, "after": true}],
+		"comma-style": ["error", "last"],
+		"computed-property-spacing": ["error", "never"],
+		"eol-last": ["error", "always"],
+		"func-call-spacing": ["error", "never"],
+		"func-style": ["error", "expression", {"allowArrowFunctions": true}],
+		"key-spacing": ["error", {"beforeColon": false}],
+		"keyword-spacing": ["error", {"before": true, "after": true}],
+		"line-comment-position": ["error", {"position": "above"}],
+		"lines-around-comment": ["error", {"beforeLineComment": true, "allowBlockStart": true}],
+		"lines-around-directive": ["error", {"before": "never", "after": "always"}],
+		"max-lines": ["error", 300],
+		"max-len": ["error", 120],
+		"no-tabs": "error"
+	}
+}
