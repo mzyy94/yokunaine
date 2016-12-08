@@ -51,7 +51,7 @@ npm start
 ### 使ってて大丈夫なの？
 
 よくないね。
-OAuthの認証後は[すぐにTokenを破棄](https://github.com/mzyy94/yokunaine/blob/master/server/index.js#L58-L61)しているから悪用はされないはずだよ。
+OAuthの認証後は[すぐにTokenを破棄](server/index.js#L61-L64)しているから悪用はされないはずだよ。
 
 ### よくないねボタンが動かないんだけど
 
