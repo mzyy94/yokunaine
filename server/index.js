@@ -20,7 +20,7 @@ const endpoint = "https://qiita.com/api/v2"
 // routing
 router
 .get("/auth", async (ctx, next) => {
-    // Authentication request
+    // request Authentication
     const {callback} = ctx.query
     ctx.assert(callback, 400, `Missing Parameter "callback"`)
     const token = crypto.randomBytes(32).hexSlice()
@@ -28,13 +28,15 @@ router
     ctx.cookies.set("callback", callback, {expires})
     .set("token", crypto.createHmac("sha256", secretKey).update(token).digest("hex"), {expires})
     ctx.redirect(`${endpoint}/oauth/authorize?client_id=${client_id}&scope=read_qiita&state=${token}`)
+    await next()
 })
 .get("/auth/callback", async (ctx, next) => {
-    // Authorization generate
+    // generate Authorization
     const {code, state} = ctx.query
+    const token = ctx.cookies.get("token")
     ctx.assert(code && state, 400, `Missing Parameter "code" and/or "state"`)
-    ctx.assert(ctx.cookies.get("callback") && ctx.cookies.get("token"), 400, `Missing Cookie "callback" and/or "token"`)
-    ctx.assert(crypto.createHmac("sha256", secretKey).update(state).digest("hex") === ctx.cookies.get("token"), 400, `Invalid Token`)
+    ctx.assert(ctx.cookies.get("callback") && token, 400, `Missing Cookie "callback" and/or "token"`)
+    ctx.assert(crypto.createHmac("sha256", secretKey).update(state).digest("hex") === token, 400, `Invalid Token`)
     ctx.cookies.set("token")
     await new Promise(resolve => setTimeout(resolve, 500))
     await rp({
@@ -63,7 +65,7 @@ router
     ]))
     .then(([user]) => Promise.all([
         user.id,
-        knex("users").first("id").where({id: user.id}),
+        knex("users").first("id").where({id: user.id})
     ]))
     .then(([id, exists]) => {
         const token = uuid.v1()
@@ -79,9 +81,10 @@ router
         ctx.redirect(`${ctx.cookies.get("callback")}?token=${token}`)
         ctx.cookies.set("callback")
     })
+    await next()
 })
 .delete("/auth/token/:token", async (ctx, next) => {
-    // Revoke token
+    // revoke token
     const {token} = ctx.params
     await knex("users").first("id", "revoked").where("token", token)
     .then(user => {
@@ -90,12 +93,12 @@ router
         return knex("users").where({id: user.id}).update({revoked: true, updated_at: knex.fn.now()})
     })
     .then(() => ctx.body = {complete: true})
+    await next()
 })
 .use("/:username/items/:id", async (ctx, next) => {
-    // Authentication
+    // authentication
     const auth = ctx.header.authorization
     ctx.assert(auth, 401, "Missing Authorization Header")
-    // Token should be "Authorization: Bearer <UUID>"
     const token = auth.replace(/^Bearer /, "")
     await knex("users").first("id").where({token, revoked: false})
     .then(user => {
@@ -105,7 +108,7 @@ router
     await next()
 })
 .get("/:username/items/:id", async (ctx, next) => {
-    // Get disliked status and dislike count from DB
+    // get disliked status and dislike count from DB
     await knex("item_dislike").select("by_whom").where({id: ctx.params.id, state: true})
     .then(users => {
         ctx.body = {
@@ -113,9 +116,10 @@ router
             count: users.length
         }
     })
+    await next()
 })
 .post("/:username/items/:id", async (ctx, next) => {
-    // Set disliked status
+    // set disliked status
     const {id, username} = ctx.params
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => {
@@ -128,30 +132,33 @@ router
         }
     })
     .then(() => ctx.body = {complete: true})
+    await next()
 })
 .delete("/:username/items/:id", async (ctx, next) => {
-    // Unset disliked status
-    const {id, username} = ctx.params
+    // unset disliked status
+    const {id} = ctx.params
     await knex("item_dislike").first("state").where({id, by_whom: ctx.user})
     .then(disliked => ctx.assert(disliked && disliked.state, 404, "Not Found"))
     .then(() => knex("item_dislike").where({id, by_whom: ctx.user}).update({state: false, updated_at: knex.fn.now()}))
     .then(() => ctx.body = {complete: true})
+    await next()
 })
 .get("/statistics/dislike", async (ctx, next) => {
     await knex("item_dislike").count("*").where({state: true})
     .then(([result]) => ctx.body = {total: result["count(*)"] | 0})
+    await next()
 })
 
-// Run API Server
+// run API Server
 app
 .use(async (ctx, next) => {
     await next()
     const {method, ip, status, path, length, protocol, user, headers: {"user-agent": ua, "accept-language": lang}} = ctx
     knex("access_log").insert({method, ip, status, path, length, ua, lang, protocol, user})
-    .then(() => {console.log(method, ip, status, path, length, ua, lang, protocol, user)})
+    .then(() => console.log(method, ip, status, path, length, ua, lang, protocol, user))
 })
 .use(async (ctx, next) => {
-    // Set cors headers
+    // set cors headers
     ctx.set("Access-Control-Allow-Origin", "*")
     ctx.set("Access-Control-Allow-Headers", "Authorization")
     ctx.set("Access-Control-Allow-Methods", "GET, PUT, DELETE")
