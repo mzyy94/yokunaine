@@ -60,7 +60,7 @@ OAuthの認証後は[すぐにTokenを破棄](https://github.com/mzyy94/yokunain
 ### ソースコードがきもわるい
 
 よくないね。
-[コントリビューションガイドライン](https://github.com/mzyy94/yokunaine/wiki/Contribution-Guidelines)みてね。
+[こだわり](server/.eslintrc.json)みてね。
 ## LICENSE
 
 [MIT](LICENSE)
