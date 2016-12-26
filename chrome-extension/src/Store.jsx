@@ -5,7 +5,7 @@ export const LIKED_STATE = Symbol("Liked state")
 export const SET_DISLIKE = Symbol("Set dislike")
 export const UNSET_DISLIKE = Symbol("Unset dislike")
 
-const dislikeStore = (state = {disliked: false, liked: false, count: 0}, action) => {
+const dislikeStore = (state = {disliked: false, liked: false, count: NaN}, action) => {
     switch (action.type) {
         case INITIAL_STATE:
             for (const prop in action.data) {
