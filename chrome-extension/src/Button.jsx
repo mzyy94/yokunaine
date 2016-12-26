@@ -58,7 +58,7 @@ class Button extends Component {
             <div className="LikeButton DislikeButton">
                 <button className={`p-button ${liked ? "disabled" : ""} ${disliked ? "liked" : ""}`} onClick={this.toggleStatus.bind(this)}>
                     <span className={`fa fa-fw ${disliked ? "fa-check" : "fa-thumbs-down"}`}></span>
-                    <span>よくないね</span>
+                    <span>よくないね{disliked && "済み"}</span>
                 </button>
             </div>
         )
