@@ -4,7 +4,7 @@ const knex = Knex(require("./knexfile.js")[process.env.NODE_ENV || "development"
 // Create table
 knex.schema.createTableIfNotExists("users", (table) => {
     table.string("id").primary()
-    table.string("token").unique()
+    table.string("token")
     table.boolean("revoked")
     table.timestamps(true, true)
 })
