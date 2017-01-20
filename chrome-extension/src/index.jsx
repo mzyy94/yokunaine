@@ -2,6 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import Button from "./Button"
 import Label from "./Label"
+import Warning from "./Warning"
 import {Store, INITIAL_STATE, LIKED_STATE} from "./Store"
 window.React = React
 
@@ -17,6 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
         <Label />,
         document.getElementById("dislike-label")
     )
+
+    // Warning
+    Store.subscribe(() => {
+        const {count} = Store.getState()
+        if (count >= 2) {
+            const warningWrapper = document.createElement("div")
+            const articleBody = document.querySelector('[itemprop="articleBody"]')
+
+            warningWrapper.id = "yokunaine-warning"
+            articleBody.insertAdjacentElement('afterbegin', warningWrapper)
+            ReactDOM.render(
+                <Warning />,
+                document.getElementById("yokunaine-warning")
+            )
+        }
+    })
 
     // Like button
     const likeButton = document.querySelector(".ArticleMainHeader .js-likebutton")
