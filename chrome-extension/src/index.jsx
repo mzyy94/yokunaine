@@ -11,12 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const labelWrapper = document.createElement("li")
     const statusList = document.querySelector("ul.list-unstyled.itemsShowHeaderStock_statusList")
 
-    labelWrapper.id = "dislike-label"
-    statusList.insertBefore(labelWrapper, statusList.children[1])
+    statusList.children[1].insertAdjacentElement('beforebegin', labelWrapper)
 
     ReactDOM.render(
         <Label />,
-        document.getElementById("dislike-label")
+        labelWrapper
     )
 
     // Warning
@@ -26,11 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const warningWrapper = document.createElement("div")
             const articleBody = document.querySelector('[itemprop="articleBody"]')
 
-            warningWrapper.id = "yokunaine-warning"
             articleBody.insertAdjacentElement('afterbegin', warningWrapper)
             ReactDOM.render(
                 <Warning />,
-                document.getElementById("yokunaine-warning")
+                warningWrapper
             )
         }
     })
@@ -56,14 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Dislike button
     const buttonWrapper = document.createElement("div")
-    const userList = document.querySelector(".list-inline.ArticleMainHeader__users")
 
-    buttonWrapper.id = "dislike-button"
-    userList.parentNode.insertBefore(buttonWrapper, userList)
+    likeButton.insertAdjacentElement('afterend', buttonWrapper)
 
     ReactDOM.render(
         <Button />,
-        document.getElementById("dislike-button")
+        buttonWrapper
     )
 }, false)
 
