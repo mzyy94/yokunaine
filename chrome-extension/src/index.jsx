@@ -19,19 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
     )
 
     // Warning
-    Store.subscribe(() => {
-        const {count} = Store.getState()
-        if (count >= 2) {
-            const warningWrapper = document.createElement("div")
-            const articleBody = document.querySelector('[itemprop="articleBody"]')
+    const warningWrapper = document.createElement("div")
+    const articleBody = document.querySelector('[itemprop="articleBody"]')
 
-            articleBody.insertAdjacentElement('afterbegin', warningWrapper)
-            ReactDOM.render(
-                <Warning />,
-                warningWrapper
-            )
-        }
-    })
+    articleBody.insertAdjacentElement('afterbegin', warningWrapper)
+    ReactDOM.render(
+        <Warning />,
+        warningWrapper
+    )
 
     // Like button
     const likeButton = document.querySelector(".ArticleMainHeader .js-likebutton")
