@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Label
     const labelWrapper = document.createElement("li")
     const statusList = document.querySelector("ul.list-unstyled.itemsShowHeaderStock_statusList")
-
-    statusList.children[1].insertAdjacentElement('beforebegin', labelWrapper)
+    statusList.children[1].insertAdjacentElement("beforebegin", labelWrapper)
 
     ReactDOM.render(
         <Label />,
@@ -20,9 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Warning
     const warningWrapper = document.createElement("div")
-    const articleBody = document.querySelector('[itemprop="articleBody"]')
+    const articleBody = document.querySelector("[itemprop='articleBody']")
+    articleBody.insertAdjacentElement("afterbegin", warningWrapper)
 
-    articleBody.insertAdjacentElement('afterbegin', warningWrapper)
     ReactDOM.render(
         <Warning />,
         warningWrapper
@@ -46,11 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
 
-
     // Dislike button
     const buttonWrapper = document.createElement("div")
-
-    likeButton.insertAdjacentElement('afterend', buttonWrapper)
+    likeButton.insertAdjacentElement("afterend", buttonWrapper)
 
     ReactDOM.render(
         <Button />,
