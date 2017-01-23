@@ -16,15 +16,15 @@ class Warning extends Component {
 
     render() {
         const {count} = this.state
-        if (count < 2) {
-            return <div></div>
+        if (count >= 2) {
+            return (
+                <div className="alert alert-danger">
+                    <i className="fa fa-warning"></i>
+                    <span>この記事には複数の<b>よくないね</b>がつけられています。</span>
+                </div>
+            )
         }
-        return (
-            <div className="alert alert-danger">
-                <i className="fa fa-warning"></i>
-                <span>この記事には複数の<b>よくないね</b>がつけられています。</span>
-            </div>
-        )
+        return <div></div>
     }
 }
 
