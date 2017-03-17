@@ -44,7 +44,7 @@
 		"lines-around-comment": ["error", {"beforeLineComment": true, "allowBlockStart": true}],
 		"lines-around-directive": ["error", {"before": "never", "after": "always"}],
 		"max-lines": ["error", 300],
-		"max-len": ["error", 120],
+		"max-len": ["error", 140],
 		"no-tabs": "error"
 	}
 }
