@@ -1,0 +1,60 @@
+html, body {
+	width: 240px;
+	height: 240px;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-family: MyYuGothicM, YuGothic, -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+a:link, a:visited, a:hover, a:active {
+	color: #eee;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+body {
+	background: #70ae45;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: white;
+}
+
+main {
+	height: 100px;
+	width: 180px;
+	margin: auto;
+	text-align: center;
+	vertical-align: middle;
+}
+
+section span {
+	font-size: 38px;
+	line-height: 60px;
+	vertical-align: top;
+}
+
+section img {
+	width: 60px;
+	height: 60px;
+}
+
+section + span {
+	font-size: 22px;
+}
+
+aside {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+}
+
+aside img {
+	cursor: pointer;
+	width: 32px;
+	height: 32px;
+}
