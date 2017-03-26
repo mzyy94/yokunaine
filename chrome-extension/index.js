@@ -1,61 +1,7 @@
-const store = new Vuex.Store({
-    strict: true,
-    state: {
-        disliked: false,
-        liked: false,
-        count: NaN
-    },
-    mutations: {
-        set(state, {count, disliked}) {
-            state.count = count
-            state.disliked = disliked
-        },
-        like(state, liked) { state.liked = liked },
-        dislike(state) {
-            state.disliked = true
-            state.count++
-        },
-        undislike(state) {
-            state.disliked = false
-            state.count--
-        }
-    },
-    getters: {
-        yokunasugiru: state => state.count >= 2
-    },
-    actions: {
-        init({commit}) {
-            chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
-                fetch(`${service_uri}${location.pathname}`, {
-                    headers: {"Authorization": `Bearer ${token}`}
-                })
-                .then(response => response.json())
-                .then(status => commit("set", status))
-                .catch(console.error)
-            })
-        },
-        dislike({commit, state}) {
-            chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
-                fetch(`${service_uri}${location.pathname}`, {
-                    method: state.disliked ? "DELETE" : "POST",
-                    headers: {"Authorization": `Bearer ${token}`}
-                })
-                .then(response => {
-                    if (response.ok) {
-                        commit(state.disliked ? "undislike" : "dislike")
-                    }
-                })
-                .catch(console.error)
-            })
-        }
-    }
-})
-store.dispatch("init")
-
 document.addEventListener("DOMContentLoaded", () => {
+    const $ = document.querySelector.bind(document)
     // Label vue instance
-    document.querySelector("ul.list-unstyled.itemsShowHeaderStock_statusList")
-    .children[1].insertAdjacentElement("beforebegin", new Vue({
+    const label = new Vue({
         template: `
             <li>
                 <div>
@@ -66,14 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="itemsShowHeaderStock_countText">よくないね</div>
                 </div>
             </li>`,
-        computed: {
-            count: () => store.state.count
+        data: {
+            count: NaN
         }
-	}).$mount().$el)
+    })
+
+    $("ul.itemsShowHeaderStock_statusList li").insertAdjacentElement("afterend", label.$mount().$el)
 
     // Warning vue instance
-    document.querySelector("[itemprop='articleBody']")
-    .insertAdjacentElement("afterbegin", document.createElement("yokunaine-warning"))
+    $("[itemprop='articleBody']").insertAdjacentElement("afterbegin", document.createElement("yokunaine-warning"))
     new Vue({
         el: "yokunaine-warning",
         template: `
@@ -84,11 +31,63 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             </div>`,
         computed: {
-            yokunasugiru: () => store.getters.yokunasugiru
+            yokunasugiru: () => label.count >= 2
         }
     })
 
-    if (document.querySelector(".ArticleMainHeader .js-likebutton") == null) {
+    const button = new Vue({
+        template: `
+            <div>
+                <div class="LikeButton DislikeButton">
+                    <button class="p-button" :class="{disabled: liked, liked: disliked}" @click="dislike">
+                        <span class="fa fa-fw" :class="[disliked ? 'fa-check' : 'fa-thumbs-down']"></span>
+                        <span>よくないね{{disliked ? "済み" : ""}}</span>
+                    </button>
+                </div>
+            </div>`,
+        data: {
+            liked: false,
+            disliked: false
+        },
+        methods: {
+            dislike() {
+                if (this.liked) {
+                    return
+                }
+                chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+                    fetch(`${service_uri}${location.pathname}`, {
+                        method: this.disliked ? "DELETE" : "POST",
+                        headers: {"Authorization": `Bearer ${token}`}
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            if (this.disliked) {
+                                label.count--
+                            } else {
+                                label.count++
+                            }
+                            this.disliked = !this.disliked
+                        }
+                    })
+                    .catch(console.error)
+                })
+            }
+        }
+    })
+
+    chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+        fetch(`${service_uri}${location.pathname}`, {
+            headers: {"Authorization": `Bearer ${token}`}
+        })
+        .then(response => response.json())
+        .then(({disliked, count}) => {
+            button.disliked = disliked
+            label.count = count
+        })
+        .catch(console.error)
+    })
+
+    if ($(".ArticleMainHeader .js-likebutton") == null) {
         // My self post
         return
     }
@@ -97,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new Vue({
         el: ".ArticleMainHeader .js-likebutton",
         computed: {
-            disliked: () => store.state.disliked
+            disliked: () => button.disliked
         },
         watch: {
             disliked: "stateChange"
@@ -115,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         beforeMount() {
             try {
-                store.commit("like", JSON.parse(this.$el.getAttribute("data-props")).like_status)
+                button.liked = JSON.parse(this.$el.getAttribute("data-props")).like_status
             } catch (e) {
                 console.error(e)
             }
@@ -125,34 +124,11 @@ document.addEventListener("DOMContentLoaded", () => {
             new MutationObserver((_, mo) => {
                 mo.disconnect()
                 // Like button click event listener
-                this.$el.addEventListener("click", () => {
-                    store.commit("like", !store.state.liked)
+                this.$el.addEventListener("click", (eve) => {
+                    button.liked = !button.liked
                 }, false)
                 this.stateChange()
             }).observe(this.$el, {childList: true, subtree: true})
         }
-    })
-
-    // Dislike button
-    document.querySelector(".ArticleMainHeader .ArticleMainHeader__users")
-    .insertAdjacentElement("beforebegin", new Vue({
-        template: `
-            <div>
-                <div class="LikeButton DislikeButton">
-                    <button class="p-button" :class="{disabled: liked, liked: disliked}" @click="dislike">
-                        <span class="fa fa-fw" :class="[disliked ? 'fa-check' : 'fa-thumbs-down']"></span>
-                        <span>よくないね{{disliked ? "済み" : ""}}</span>
-                    </button>
-                </div>
-            </div>`,
-        computed: {
-            liked: () => store.state.liked,
-            disliked: () => store.state.disliked
-        },
-        methods: {
-            dislike() {
-                if (!this.liked) store.dispatch("dislike")
-            }
-        }
-    }).$mount().$el)
+    }).$el.insertAdjacentElement("afterend", button.$mount().$el)
 }, false)
