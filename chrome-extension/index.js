@@ -79,7 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(`${service_uri}${location.pathname}`, {
             headers: {"Authorization": `Bearer ${token}`}
         })
-        .then(response => response.json())
+        .then(response => Promise.all([response.ok, response.json()]))
+        .then(([ok, data]) => {
+            if (!ok) {
+                throw Error(data.message)
+            }
+            return data
+        })
         .then(({disliked, count}) => {
             button.disliked = disliked
             label.count = count
