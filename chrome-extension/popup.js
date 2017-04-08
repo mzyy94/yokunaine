@@ -8,4 +8,9 @@ document.addEventListener("DOMContentLoaded", function() {
 	document.querySelector("[src='configuration.svg']").addEventListener('click', function() {
 		chrome.runtime.openOptionsPage()
 	})
+	chrome.storage.sync.get(["service_uri", "token"], ({service_uri, token}) => {
+		if (!service_uri || !token) {
+			chrome.runtime.openOptionsPage()
+		}
+	})
 }, false);
