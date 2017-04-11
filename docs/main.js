@@ -8,4 +8,13 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	}
 	xhr.send();
+
+	var dlLink = document.getElementById("download");
+	if (window.chrome && chrome.webstore && typeof chrome.webstore.install === "function") {
+		dlLink.addEventListener("click", function() {
+			chrome.webstore.install();
+		}, false);
+	} else {
+		dlLink.href = "https://chrome.google.com/webstore/detail/fceocghaogpidgglkglhdadcaechdeln";
+	}
 }, false);

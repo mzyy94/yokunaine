@@ -47,6 +47,17 @@ section + span {
 	font-size: 40px;
 }
 
+a#download {
+	font-size: 20px;
+	line-height: 20px;
+}
+
+a#download img {
+	width: 30px;
+	height: 30px;
+	vertical-align: text-bottom;
+}
+
 aside {
 	display: block;
 	text-align: center;
