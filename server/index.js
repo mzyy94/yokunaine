@@ -177,7 +177,7 @@ app
         ctx.set("Content-Type", "application/problem+json; charset=utf-8")
     }
 })
-.use(ratelimit({duration: 60000, rate: rate_limit || 30, id: ctx => `${ctx.method}${ctx.user}${ctx.ip}`, throw: true}))
+.use(ratelimit({duration: 60000, rate: +rate_limit || 30, id: ctx => `${ctx.method}${ctx.user}${ctx.ip}`, throw: true}))
 .use(router.routes())
 .use(router.allowedMethods({throw: true}))
 .listen(+port || 3000)
