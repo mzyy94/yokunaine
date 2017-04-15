@@ -10,7 +10,7 @@
 
 ## 使い方
 
-1. https://github.com/mzyy94/yokunaine/releases からChrome拡張機能をダウンロードしてインストール
+1. https://yokunaine.mzyy94.com からChrome拡張機能をダウンロードしてインストール
 2. 拡張機能ページ(chrome://extensions)を開く
 3. *よくないね。* のオプション画面を開く
 4. **Get Token**
@@ -18,12 +18,7 @@
 
 ## 開発者向け情報
 
-    #React #ES2015 #JavaScript #Promise #NodeJs #AsyncAwait #Babel #ChromeExtension
-    #Class #Symbol #WebPack
-
-### 開発方法
-
-#### Chrome拡張
+### Chrome拡張
 
 ```
 cd chrome-extension
@@ -31,7 +26,7 @@ npm i
 npm run build
 ```
 
-#### サーバアプリケーション
+### サーバアプリケーション
 
 ```
 cd server
@@ -60,7 +55,8 @@ OAuthの認証後は[すぐにTokenを破棄](server/index.js#L61-L64)してい�
 ### ソースコードがきもわるい
 
 よくないね。
-[こだわり](server/.eslintrc.json)みてね。
+[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
 ## LICENSE
 
 [MIT](LICENSE)
