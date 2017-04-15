@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --harmony index.js",
-    "lint": "eslint index.js"
+    "check": "standard"
   },
   "engineStrict": true,
   "engines": {
@@ -36,6 +36,6 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^4.0.0-alpha.0"
+    "standard": "^10.0.2"
   }
 }
