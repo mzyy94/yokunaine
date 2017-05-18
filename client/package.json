@@ -1,0 +1,35 @@
+{
+  "name": "yokunaine-client",
+  "version": "0.1.0",
+  "description": "いいね　だけじゃ　だめだよ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "standard"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mzyy94/yokunaine.git"
+  },
+  "keywords": [
+    "yokunaine"
+  ],
+  "author": "mzyy94",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mzyy94/yokunaine/issues"
+  },
+  "homepage": "https://github.com/mzyy94/yokunaine#readme",
+  "standard": {
+    "globals": [
+      "Vue"
+    ]
+  },
+  "devDependencies": {
+    "standard": "^10.0.2"
+  }
+}
