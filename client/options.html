@@ -17,29 +17,31 @@
     </style>
   </head>
   <body class="uk-container">
-    <h1>Settings</h1>
-    <section v-cloak>
-      <div class="uk-margin">
-        <label class="uk-form-label">Service URL</label>
-        <div class="uk-form-controls">
-          <input class="uk-input uk-form-width-large" type="url" required placeholder="https://service.yokunaine.mzyy94.com/api/v1" v-model="url">
-          <button class="uk-button uk-button-secondary" :disabled="url === savedUrl" @click="cancel">Cancel</button>
-          <button class="uk-button uk-button-primary" :disabled="url === savedUrl" @click="save">Save</button>
+    <main v-cloak>
+      <h1>Settings</h1>
+      <section>
+        <div class="uk-margin">
+          <label class="uk-form-label">Service URL</label>
+          <div class="uk-form-controls">
+            <input class="uk-input uk-form-width-large" type="url" required placeholder="https://service.yokunaine.mzyy94.com/api/v1" v-model="url">
+            <button class="uk-button uk-button-secondary" :disabled="url === savedUrl" @click="cancel">Cancel</button>
+            <button class="uk-button uk-button-primary" :disabled="url === savedUrl" @click="save">Save</button>
+          </div>
         </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label">Token</label>
-        <div class="uk-form-controls">
-          <input class="uk-input uk-form-width-large" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" disabled v-model="token">
-          <button class="uk-button uk-button-danger" @click="revokeToken" v-if="!!token">Revoke Token</button>
-          <button class="uk-button uk-button-default" @click="getToken" v-else>Get Token</button>
+        <div class="uk-margin">
+          <label class="uk-form-label">Token</label>
+          <div class="uk-form-controls">
+            <input class="uk-input uk-form-width-large" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" disabled v-model="token">
+            <button class="uk-button uk-button-danger" @click="revokeToken" v-if="!!token">Revoke Token</button>
+            <button class="uk-button uk-button-default" @click="getToken" v-else>Get Token</button>
+          </div>
         </div>
-      </div>
-      <div class="uk-margin">
-        <span class="uk-label" v-if="report === undefined">NEW</span>
-        <label><input class="uk-checkbox" type="checkbox" v-model="report">Report inappropriate article at the same time</label>
-      </div>
-    </section>
+        <div class="uk-margin">
+          <span class="uk-label" v-if="report === undefined">NEW</span>
+          <label><input class="uk-checkbox" type="checkbox" v-model="report">Report inappropriate article at the same time</label>
+        </div>
+      </section>
+    </main>
     <script src="options.js" charset="utf-8"></script>
   </body>
 </html>
