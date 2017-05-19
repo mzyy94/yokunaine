@@ -14,10 +14,7 @@ new Vue({ // eslint-disable-line no-new
         this.savedUrl = uri
       }
       if (token === undefined) {
-        const token = window.location.search.slice(1).split('&')
-        .filter(query => query.startsWith('token='))
-        .map(param => param.split('=').pop())
-        .reduce((first, second) => first || second, '')
+        const token = new window.URLSearchParams(window.location.search).get('token')
         if (token) {
           window.chrome.storage.sync.set({token}, () => {
             window.history.replaceState({}, document.title, window.location.pathname)
