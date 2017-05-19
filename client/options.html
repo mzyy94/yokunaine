@@ -35,6 +35,10 @@
           <button class="uk-button uk-button-default" @click="getToken" v-else>Get Token</button>
         </div>
       </div>
+      <div class="uk-margin">
+        <span class="uk-label" v-if="report === undefined">NEW</span>
+        <label><input class="uk-checkbox" type="checkbox" v-model="report">Report inappropriate article at the same time</label>
+      </div>
     </section>
     <script src="options.js" charset="utf-8"></script>
   </body>

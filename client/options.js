@@ -3,10 +3,11 @@ new Vue({ // eslint-disable-line no-new
   data: {
     savedUrl: 'https://service.yokunaine.mzyy94.com/api/v1',
     url: 'https://service.yokunaine.mzyy94.com/api/v1',
-    token: ''
+    token: '',
+    report: false
   },
   created () {
-    window.chrome.storage.sync.get(['service_uri', 'token'], ({service_uri: uri, token}) => {
+    window.chrome.storage.sync.get(['service_uri', 'token', 'report'], ({service_uri: uri, token, report}) => {
       if (uri === undefined) {
         window.chrome.storage.sync.set({service_uri: this.savedUrl}, () => {})
       } else {
@@ -24,7 +25,13 @@ new Vue({ // eslint-disable-line no-new
       } else {
         this.token = token
       }
+      this.report = report
     })
+  },
+  watch: {
+    report: (newVal) => {
+      window.chrome.storage.sync.set({report: newVal}, () => {})
+    }
   },
   methods: {
     save () {
