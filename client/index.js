@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (this.liked) {
           return
         }
-        window.chrome.storage.sync.get(['service_uri', 'token'], ({service_uri: uri, token}) => {
+        window.chrome.storage.sync.get(['service_uri', 'token', 'report'], ({service_uri: uri, token, report}) => {
           window.fetch(`${uri}${window.location.pathname}`, {
             method: this.disliked ? 'DELETE' : 'POST',
             headers: {'Authorization': `Bearer ${token}`}
@@ -65,6 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 label.count--
               } else {
                 label.count++
+                if (report) {
+                  document.getElementById('report_type_inappropriate_content').checked = true
+                  window.fetch('/reports', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: new window.URLSearchParams([...new window.FormData(document.querySelector('[action="/reports"]')).entries()])
+                  })
+                }
               }
               this.disliked = !this.disliked
             }
