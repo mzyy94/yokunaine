@@ -64,5 +64,5 @@ aside img {
 }
 
 img.new {
-	animation: blink 1s linear infinite;
+	animation: blink 1s step-end infinite;
 }
