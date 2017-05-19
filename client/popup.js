@@ -13,4 +13,12 @@ document.addEventListener('DOMContentLoaded', function () {
       window.chrome.runtime.openOptionsPage()
     }
   })
+  window.chrome.browserAction.getBadgeText({}, string => {
+    if (string !== '') {
+      document.querySelector("[src='configuration.svg']").classList.add('new')
+      document.querySelector("[src='configuration.svg']").addEventListener('click', function () {
+        window.chrome.browserAction.setBadgeText({text: ''})
+      })
+    }
+  })
 }, false)

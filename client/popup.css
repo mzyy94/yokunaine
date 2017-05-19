@@ -58,3 +58,11 @@ aside img {
 	width: 32px;
 	height: 32px;
 }
+
+@keyframes blink {
+	50% { opacity: 0.5; }
+}
+
+img.new {
+	animation: blink 1s linear infinite;
+}
