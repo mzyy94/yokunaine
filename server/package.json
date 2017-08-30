@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --harmony index.js",
+    "start": "node index.js",
     "check": "standard"
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=7.0.0"
+    "node": ">=8.0.0"
   },
   "repository": {
     "type": "git",
@@ -26,16 +26,16 @@
   },
   "homepage": "https://github.com/mzyy94/yokunaine#readme",
   "dependencies": {
-    "knex": "^0.12.9",
-    "koa": "^2.2.0",
+    "knex": "^0.13.0",
+    "koa": "^2.3.0",
     "koa-ratelimit-lru": "^1.0.2",
-    "koa-router": "^7.1.1",
+    "koa-router": "^7.2.1",
     "request": "^2.81.0",
-    "request-promise": "^4.2.0",
-    "sqlite": "^2.5.0",
-    "uuid": "^3.0.1"
+    "request-promise": "^4.2.1",
+    "sqlite": "^2.8.0",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
-    "standard": "^10.0.2"
+    "standard": "^10.0.3"
   }
 }

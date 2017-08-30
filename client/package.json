@@ -9,7 +9,7 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=7.0.0"
+    "node": ">=8.0.0"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,6 @@
     ]
   },
   "devDependencies": {
-    "standard": "^10.0.2"
+    "standard": "^10.0.3"
   }
 }
